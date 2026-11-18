@@ -415,44 +415,47 @@
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
-    <!-- Bottom Taskbar -->
+    <!-- Bottom Floating Dock -->
     <LinearLayout
         android:id="@+id/taskbar"
         android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:elevation="16dp"
+        android:layout_height="54dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="12dp"
+        android:elevation="20dp"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:background="@color/dex_taskbar_bg"
-        android:paddingStart="12dp"
-        android:paddingEnd="16dp"
+        android:background="@drawable/bg_floating_dock"
+        android:paddingStart="10dp"
+        android:paddingEnd="14dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Start Menu Button -->
+        <!-- Start Menu / Spotlight Button -->
         <FrameLayout
             android:id="@+id/startMenuButton"
-            android:layout_width="44dp"
-            android:layout_height="44dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:background="@drawable/bg_taskbar_btn"
             android:clickable="true"
             android:focusable="true">
 
             <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
                 android:layout_gravity="center"
                 android:src="@android:drawable/ic_dialog_dialer"
                 app:tint="@color/dex_accent_cyan"
-                android:contentDescription="Start Menu" />
+                android:contentDescription="Spotlight Launchpad" />
         </FrameLayout>
 
         <!-- Navigation Back Button -->
         <FrameLayout
             android:id="@+id/navBackButton"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
             android:layout_marginStart="4dp"
             android:background="@drawable/bg_taskbar_btn"
             android:clickable="true"
@@ -470,8 +473,8 @@
         <!-- Task View / Virtual Desktops Button -->
         <FrameLayout
             android:id="@+id/taskViewButton"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
             android:layout_marginStart="4dp"
             android:background="@drawable/bg_taskbar_btn"
             android:clickable="true"
@@ -496,34 +499,58 @@
             android:layout_marginEnd="8dp"
             android:orientation="horizontal" />
 
-        <!-- System Tray -->
+        <!-- System Tray Quick Settings -->
         <LinearLayout
             android:id="@+id/systemTray"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:paddingStart="8dp"
-            android:paddingEnd="8dp">
+            android:paddingStart="6dp"
+            android:paddingEnd="6dp">
+
+            <!-- Wi-Fi Status Icon -->
+            <ImageView
+                android:id="@+id/trayWifiIcon"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginEnd="10dp"
+                android:src="@drawable/ic_wifi"
+                app:tint="@color/dex_accent_cyan"
+                android:contentDescription="Wi-Fi Status"
+                android:clickable="true"
+                android:focusable="true" />
+
+            <!-- Volume / Audio Icon -->
+            <ImageView
+                android:id="@+id/trayVolumeIcon"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginEnd="10dp"
+                android:src="@drawable/ic_volume"
+                app:tint="@color/dex_accent_cyan"
+                android:contentDescription="Volume Status"
+                android:clickable="true"
+                android:focusable="true" />
 
             <!-- Virtual Keyboard Toggle Button -->
             <ImageView
                 android:id="@+id/trayKeyboardBtn"
-                android:layout_width="22dp"
-                android:layout_height="22dp"
-                android:layout_marginEnd="12dp"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginEnd="10dp"
                 android:src="@drawable/ic_keyboard"
                 app:tint="@color/dex_accent_cyan"
                 android:contentDescription="Virtual Keyboard"
                 android:clickable="true"
                 android:focusable="true" />
 
-            <!-- External Display Indicator -->
+            <!-- External Display Indicator (Hidden by default unless multi-monitor) -->
             <ImageView
                 android:id="@+id/trayDisplayIcon"
-                android:layout_width="22dp"
-                android:layout_height="22dp"
-                android:layout_marginEnd="12dp"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginEnd="10dp"
                 android:src="@drawable/ic_display_connected"
                 android:visibility="gone"
                 android:contentDescription="External Display"
@@ -539,7 +566,7 @@
                 android:textColor="@color/dex_text_primary"
                 android:textSize="12sp"
                 android:textStyle="bold"
-                android:layout_marginEnd="12dp" />
+                android:layout_marginEnd="10dp" />
 
             <!-- Live Clock -->
             <TextClock

@@ -5,8 +5,11 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.graphics.Color
 import android.graphics.Rect
 import android.media.AudioManager
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.net.Uri
 import android.os.BatteryManager
 import android.os.Bundle
@@ -94,6 +97,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var allAppsCountText: TextView
     private lateinit var trayBatteryText: TextView
     private lateinit var trayDisplayIcon: ImageView
+    private lateinit var trayWifiIcon: ImageView
+    private lateinit var trayVolumeIcon: ImageView
     private lateinit var trayKeyboardBtn: ImageView
     private lateinit var brightnessDimmer: View
     private lateinit var taskbar: LinearLayout
@@ -211,6 +216,8 @@ class MainActivity : AppCompatActivity() {
         allAppsCountText = findViewById(R.id.allAppsCountText)
         trayBatteryText = findViewById(R.id.trayBatteryText)
         trayDisplayIcon = findViewById(R.id.trayDisplayIcon)
+        trayWifiIcon = findViewById(R.id.trayWifiIcon)
+        trayVolumeIcon = findViewById(R.id.trayVolumeIcon)
         trayKeyboardBtn = findViewById(R.id.trayKeyboardBtn)
         brightnessDimmer = findViewById(R.id.brightnessDimmer)
         taskbar = findViewById(R.id.taskbar)
@@ -392,6 +399,29 @@ class MainActivity : AppCompatActivity() {
             toggleTaskView(false)
             toggleControlCenter()
         }
+
+        trayWifiIcon.setOnClickListener {
+            toggleStartMenu(false)
+            toggleTaskView(false)
+            toggleControlCenter()
+        }
+
+        trayWifiIcon.setOnLongClickListener {
+            try {
+                startActivity(Intent(Settings.ACTION_WIFI_SETTINGS))
+            } catch (e: Exception) {
+                Toast.makeText(this, "Cannot open Wi-Fi settings", Toast.LENGTH_SHORT).show()
+            }
+            true
+        }
+
+        trayVolumeIcon.setOnClickListener {
+            toggleStartMenu(false)
+            toggleTaskView(false)
+            toggleControlCenter()
+        }
+
+        updateWifiStatus()
 
         val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
         val maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
@@ -1123,6 +1153,25 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
         registerReceiver(batteryReceiver, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
         displayDetectionManager.startListening()
+        updateWifiStatus()
+    }
+
+    private fun updateWifiStatus() {
+        try {
+            val cm = getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
+            val activeNet = cm?.activeNetwork
+            val caps = cm?.getNetworkCapabilities(activeNet)
+            val isWifi = caps?.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) == true
+            if (::trayWifiIcon.isInitialized) {
+                if (isWifi) {
+                    trayWifiIcon.setColorFilter(Color.parseColor("#00E5FF"))
+                } else {
+                    trayWifiIcon.setColorFilter(Color.parseColor("#64748B"))
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to query wifi status: ${e.message}")
+        }
     }
 
     override fun onPause() {
