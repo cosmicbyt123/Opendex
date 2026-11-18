@@ -49,6 +49,7 @@ import com.cosmic.opendex.window.ActiveTask
 import com.cosmic.opendex.window.FreeformManager
 import com.cosmic.opendex.window.RunningTasksAdapter
 import com.cosmic.opendex.window.SnapPosition
+import com.cosmic.opendex.window.TaskbarOverlayService
 import com.cosmic.opendex.window.WindowDecoratorManager
 import com.google.android.material.button.MaterialButton
 import kotlinx.coroutines.launch
@@ -59,6 +60,15 @@ import java.util.Locale
 class MainActivity : AppCompatActivity() {
 
     private val TAG = "OpenDeX:Main"
+
+    companion object {
+        const val EXTRA_OPEN_START_MENU = "extra_open_start_menu"
+        const val EXTRA_OPEN_TASK_VIEW = "extra_open_task_view"
+    }
+
+    private var threeFingerStartX = 0f
+    private var isThreeFingerSwipeActive = false
+    private var hasPromptedOverlay = false
 
     private lateinit var appRepository: AppRepository
     private lateinit var desktopPreferences: DesktopPreferences
@@ -155,8 +165,23 @@ class MainActivity : AppCompatActivity() {
         setupListeners()
         setupControlCenter()
         setupVirtualDesktops()
+        setupThreeFingerSwipe()
         wallpaperManager.applyWallpaper(desktopWallpaper)
         loadApplications()
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        if (intent?.getBooleanExtra(EXTRA_OPEN_START_MENU, false) == true) {
+            toggleControlCenter(false)
+            toggleTaskView(false)
+            toggleStartMenu(true)
+        } else if (intent?.getBooleanExtra(EXTRA_OPEN_TASK_VIEW, false) == true) {
+            toggleControlCenter(false)
+            toggleStartMenu(false)
+            toggleTaskView(true)
+        }
     }
 
     private fun setupWindowInsets() {
@@ -616,6 +641,14 @@ class MainActivity : AppCompatActivity() {
             customBounds = bounds
         )
 
+        // Ensure floating taskbar overlay is running so the user always has Back & Taskbar
+        if (Settings.canDrawOverlays(this)) {
+            TaskbarOverlayService.start(this)
+            TaskbarOverlayService.updateActiveApp(this, app.label)
+        } else {
+            promptOverlayPermissionOnce()
+        }
+
         if (success) {
             var existing = activeTasks.find { it.id == app.componentNameString }
             if (existing != null) {
@@ -902,6 +935,69 @@ class MainActivity : AppCompatActivity() {
         }
 
         dialog.show()
+    }
+
+    private fun setupThreeFingerSwipe() {
+        val desktopRoot = findViewById<View>(R.id.desktopRoot)
+        desktopRoot.setOnTouchListener { _, event ->
+            if (event.pointerCount >= 3) {
+                when (event.actionMasked) {
+                    MotionEvent.ACTION_POINTER_DOWN, MotionEvent.ACTION_DOWN -> {
+                        threeFingerStartX = (event.getX(0) + event.getX(1) + event.getX(2)) / 3f
+                        isThreeFingerSwipeActive = true
+                    }
+                    MotionEvent.ACTION_POINTER_UP, MotionEvent.ACTION_UP -> {
+                        if (isThreeFingerSwipeActive) {
+                            val endX = (event.getX(0) + event.getX(1) + event.getX(2)) / 3f
+                            val deltaX = endX - threeFingerStartX
+                            if (deltaX < -100) {
+                                switchToNextDesktop()
+                            } else if (deltaX > 100) {
+                                switchToPreviousDesktop()
+                            }
+                            isThreeFingerSwipeActive = false
+                        }
+                    }
+                }
+                true
+            } else {
+                false
+            }
+        }
+    }
+
+    private fun switchToNextDesktop() {
+        val desktops = virtualDesktopManager.getDesktops()
+        val nextIdx = (virtualDesktopManager.activeIndex + 1) % desktops.size
+        val d = virtualDesktopManager.switchDesktop(nextIdx)
+        renderVirtualDesktops()
+        Toast.makeText(this, "Workspace: ${d.name}", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun switchToPreviousDesktop() {
+        val desktops = virtualDesktopManager.getDesktops()
+        val prevIdx = if (virtualDesktopManager.activeIndex > 0) virtualDesktopManager.activeIndex - 1 else desktops.size - 1
+        val d = virtualDesktopManager.switchDesktop(prevIdx)
+        renderVirtualDesktops()
+        Toast.makeText(this, "Workspace: ${d.name}", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun promptOverlayPermissionOnce() {
+        if (!hasPromptedOverlay && !Settings.canDrawOverlays(this)) {
+            hasPromptedOverlay = true
+            AlertDialog.Builder(this)
+                .setTitle("Keep Navigation & Taskbar Visible")
+                .setMessage("To keep the Back button and Taskbar floating on top when apps like Amazon are open, please allow 'Display over other apps'.")
+                .setPositiveButton("Enable in Settings") { _, _ ->
+                    val intent = Intent(
+                        Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                        Uri.parse("package:$packageName")
+                    )
+                    startActivity(intent)
+                }
+                .setNegativeButton("Later", null)
+                .show()
+        }
     }
 
     private fun showDisplayRoutingDialog() {

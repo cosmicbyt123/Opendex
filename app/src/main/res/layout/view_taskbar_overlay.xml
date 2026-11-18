@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/overlayTaskbarRoot"
+    android:layout_width="match_parent"
+    android:layout_height="52dp"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:background="@color/dex_taskbar_bg"
+    android:paddingStart="10dp"
+    android:paddingEnd="12dp">
+
+    <!-- Start Menu / Desktop Button -->
+    <FrameLayout
+        android:id="@+id/overlayStartBtn"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@drawable/bg_taskbar_btn"
+        android:clickable="true"
+        android:focusable="true">
+
+        <ImageView
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:layout_gravity="center"
+            android:src="@android:drawable/ic_dialog_dialer"
+            app:tint="@color/dex_accent_cyan"
+            android:contentDescription="Start Menu" />
+    </FrameLayout>
+
+    <!-- Back Navigation Button -->
+    <FrameLayout
+        android:id="@+id/overlayBackBtn"
+        android:layout_width="38dp"
+        android:layout_height="38dp"
+        android:layout_marginStart="4dp"
+        android:background="@drawable/bg_taskbar_btn"
+        android:clickable="true"
+        android:focusable="true">
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_nav_back"
+            app:tint="@color/dex_text_primary"
+            android:contentDescription="Back" />
+    </FrameLayout>
+
+    <!-- Virtual Desktops Button -->
+    <FrameLayout
+        android:id="@+id/overlayTaskViewBtn"
+        android:layout_width="38dp"
+        android:layout_height="38dp"
+        android:layout_marginStart="4dp"
+        android:background="@drawable/bg_taskbar_btn"
+        android:clickable="true"
+        android:focusable="true">
+
+        <ImageView
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_task_view"
+            app:tint="@color/dex_accent_cyan"
+            android:contentDescription="Virtual Desktops" />
+    </FrameLayout>
+
+    <!-- Spacer / Running Tasks -->
+    <TextView
+        android:id="@+id/overlayActiveLabel"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_marginStart="12dp"
+        android:text="OpenDeX Desktop"
+        android:textColor="@color/dex_text_secondary"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        android:singleLine="true"
+        android:ellipsize="end" />
+
+    <!-- Clock -->
+    <TextClock
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:format12Hour="h:mm a"
+        android:format24Hour="HH:mm"
+        android:textColor="@color/dex_text_primary"
+        android:textSize="12sp"
+        android:textStyle="bold" />
+
+</LinearLayout>

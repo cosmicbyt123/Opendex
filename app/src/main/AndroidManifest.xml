@@ -38,6 +38,12 @@
                 <category android:name="android.intent.category.SECONDARY_HOME" />
             </intent-filter>
         </activity>
+
+        <!-- Persistent Floating Taskbar Service (stays on top of full-screen apps) -->
+        <service
+            android:name=".window.TaskbarOverlayService"
+            android:enabled="true"
+            android:exported="false" />
     </application>
 
 </manifest>
