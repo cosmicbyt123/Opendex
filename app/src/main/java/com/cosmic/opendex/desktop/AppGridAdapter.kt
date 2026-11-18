@@ -40,7 +40,11 @@ class AppGridAdapter(
             }
 
             itemView.setOnLongClickListener { v ->
+                val clipData = android.content.ClipData.newPlainText("app_component", app.componentNameString)
+                val shadow = View.DragShadowBuilder(v)
+                v.startDragAndDrop(clipData, shadow, app, View.DRAG_FLAG_GLOBAL)
                 onAppLongClick?.invoke(app, v) ?: false
+                true
             }
 
             // Mouse right-click support

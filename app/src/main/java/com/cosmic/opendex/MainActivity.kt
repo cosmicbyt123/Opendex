@@ -17,10 +17,15 @@ import android.provider.Settings
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
+import android.view.DragEvent
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
+import android.view.ViewGroup
+import android.view.animation.AccelerateInterpolator
+import android.view.animation.DecelerateInterpolator
+import android.view.animation.OvershootInterpolator
 import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.ImageView
@@ -174,6 +179,8 @@ class MainActivity : AppCompatActivity() {
         setupControlCenter()
         setupVirtualDesktops()
         setupThreeFingerSwipe()
+        setupDockMagnification()
+        setupDockDragAndDrop()
         wallpaperManager.applyWallpaper(desktopWallpaper)
         loadApplications()
     }
@@ -322,13 +329,17 @@ class MainActivity : AppCompatActivity() {
         runningTasksList.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         runningTasksAdapter = RunningTasksAdapter(
             onTaskClick = { task ->
-                if (task.isPinnedOnly) {
-                    launchApplication(task.app)
-                } else if (task.isMinimized) {
-                    restoreActiveTask(task)
-                } else {
-                    minimizeActiveTask(task)
+                val v = runningTasksList.findViewWithTag<View>(task.id)
+                val action = {
+                    if (task.isPinnedOnly) {
+                        launchApplication(task.app)
+                    } else if (task.isMinimized) {
+                        restoreActiveTask(task)
+                    } else {
+                        minimizeActiveTask(task)
+                    }
                 }
+                action()
             },
             onTaskClose = { task ->
                 if (!task.isPinnedOnly) {
@@ -522,6 +533,155 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun setupDockMagnification() {
+        // macOS Mouse / Trackpad Magnification Wave
+        runningTasksList.setOnGenericMotionListener { _, event ->
+            when (event.action) {
+                MotionEvent.ACTION_HOVER_MOVE -> {
+                    applyDockMagnification(runningTasksList, event.x)
+                    true
+                }
+                MotionEvent.ACTION_HOVER_EXIT -> {
+                    resetDockMagnification(runningTasksList)
+                    true
+                }
+                else -> false
+            }
+        }
+
+        // Touch scrubbing magnification
+        runningTasksList.addOnItemTouchListener(object : RecyclerView.SimpleOnItemTouchListener() {
+            override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
+                when (e.action) {
+                    MotionEvent.ACTION_MOVE -> {
+                        applyDockMagnification(rv, e.x)
+                    }
+                    MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                        resetDockMagnification(rv)
+                    }
+                }
+                return false
+            }
+        })
+    }
+
+    private fun applyDockMagnification(container: ViewGroup, focusX: Float) {
+        val density = resources.displayMetrics.density
+        val maxRadius = 90f * density
+
+        for (i in 0 until container.childCount) {
+            val child = container.getChildAt(i)
+            val childCenterX = child.x + child.width / 2f
+            val distance = kotlin.math.abs(focusX - childCenterX)
+
+            if (distance < maxRadius) {
+                val factor = kotlin.math.cos((distance / maxRadius) * (Math.PI / 2)).toFloat()
+                val scale = 1.0f + 0.30f * factor
+                val transY = -14f * density * factor
+
+                child.scaleX = scale
+                child.scaleY = scale
+                child.translationY = transY
+            } else {
+                child.scaleX = 1.0f
+                child.scaleY = 1.0f
+                child.translationY = 0f
+            }
+        }
+    }
+
+    private fun resetDockMagnification(container: ViewGroup) {
+        for (i in 0 until container.childCount) {
+            val child = container.getChildAt(i)
+            child.animate()
+                .scaleX(1.0f)
+                .scaleY(1.0f)
+                .translationY(0f)
+                .setDuration(160)
+                .setInterpolator(DecelerateInterpolator())
+                .start()
+        }
+    }
+
+    private fun bounceDockItem(v: View, onEnd: () -> Unit) {
+        val density = resources.displayMetrics.density
+        v.animate()
+            .translationY(-22f * density)
+            .setDuration(140)
+            .setInterpolator(OvershootInterpolator(2.2f))
+            .withEndAction {
+                v.animate()
+                    .translationY(0f)
+                    .setDuration(150)
+                    .setInterpolator(DecelerateInterpolator())
+                    .withEndAction { onEnd() }
+                    .start()
+            }
+            .start()
+    }
+
+    private fun setupDockDragAndDrop() {
+        val dockDropListener = View.OnDragListener { _, event ->
+            when (event.action) {
+                DragEvent.ACTION_DRAG_STARTED -> true
+                DragEvent.ACTION_DRAG_ENTERED -> {
+                    taskbar.animate().scaleX(1.05f).scaleY(1.05f).setDuration(140).start()
+                    true
+                }
+                DragEvent.ACTION_DRAG_EXITED -> {
+                    taskbar.animate().scaleX(1.0f).scaleY(1.0f).setDuration(140).start()
+                    true
+                }
+                DragEvent.ACTION_DROP -> {
+                    taskbar.animate().scaleX(1.0f).scaleY(1.0f).setDuration(140).start()
+                    val droppedApp = event.localState as? AppModel
+                    if (droppedApp != null) {
+                        if (!desktopPreferences.isPinned(droppedApp.componentNameString)) {
+                            desktopPreferences.pinApp(droppedApp.componentNameString)
+                            refreshDesktopPins()
+                            Toast.makeText(this@MainActivity, "Added ${droppedApp.label} to Dock", Toast.LENGTH_SHORT).show()
+                        } else {
+                            Toast.makeText(this@MainActivity, "${droppedApp.label} is already in Dock", Toast.LENGTH_SHORT).show()
+                        }
+                        toggleStartMenu(false)
+                        true
+                    } else {
+                        false
+                    }
+                }
+                DragEvent.ACTION_DRAG_ENDED -> {
+                    taskbar.animate().scaleX(1.0f).scaleY(1.0f).setDuration(140).start()
+                    true
+                }
+                else -> true
+            }
+        }
+
+        taskbar.setOnDragListener(dockDropListener)
+        runningTasksList.setOnDragListener(dockDropListener)
+
+        // Dragging OUT of dock onto desktop wallpaper to remove
+        desktopWallpaper.setOnDragListener { _, event ->
+            when (event.action) {
+                DragEvent.ACTION_DRAG_STARTED -> true
+                DragEvent.ACTION_DROP -> {
+                    val task = event.localState as? ActiveTask
+                    if (task != null) {
+                        if (desktopPreferences.isPinned(task.app.componentNameString)) {
+                            desktopPreferences.unpinApp(task.app.componentNameString)
+                            refreshDesktopPins()
+                            Toast.makeText(this@MainActivity, "Removed ${task.app.label} from Dock", Toast.LENGTH_SHORT).show()
+                        }
+                        true
+                    } else {
+                        false
+                    }
+                }
+                else -> true
+            }
+        }
+    }
+
     private fun setupVirtualDesktops() {
         renderVirtualDesktops()
     }
@@ -530,9 +690,25 @@ class MainActivity : AppCompatActivity() {
         val shouldOpen = forceState ?: (taskViewCard.visibility != View.VISIBLE)
         if (shouldOpen) {
             renderVirtualDesktops()
+            val density = resources.displayMetrics.density
+            taskViewCard.translationY = -20f * density
+            taskViewCard.alpha = 0f
             taskViewCard.visibility = View.VISIBLE
+            taskViewCard.animate()
+                .translationY(0f)
+                .alpha(1f)
+                .setDuration(190)
+                .setInterpolator(DecelerateInterpolator(1.8f))
+                .start()
         } else {
-            taskViewCard.visibility = View.GONE
+            val density = resources.displayMetrics.density
+            taskViewCard.animate()
+                .translationY(-16f * density)
+                .alpha(0f)
+                .setDuration(150)
+                .setInterpolator(AccelerateInterpolator())
+                .withEndAction { taskViewCard.visibility = View.GONE }
+                .start()
         }
     }
 
@@ -650,9 +826,25 @@ class MainActivity : AppCompatActivity() {
             val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
             volumeSeekBar.progress = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
 
+            val density = resources.displayMetrics.density
+            controlCenterCard.translationY = -20f * density
+            controlCenterCard.alpha = 0f
             controlCenterCard.visibility = View.VISIBLE
+            controlCenterCard.animate()
+                .translationY(0f)
+                .alpha(1f)
+                .setDuration(190)
+                .setInterpolator(DecelerateInterpolator(1.8f))
+                .start()
         } else {
-            controlCenterCard.visibility = View.GONE
+            val density = resources.displayMetrics.density
+            controlCenterCard.animate()
+                .translationY(-16f * density)
+                .alpha(0f)
+                .setDuration(150)
+                .setInterpolator(AccelerateInterpolator())
+                .withEndAction { controlCenterCard.visibility = View.GONE }
+                .start()
         }
     }
 
@@ -850,13 +1042,37 @@ class MainActivity : AppCompatActivity() {
     private fun toggleStartMenu(forceState: Boolean? = null) {
         val shouldOpen = forceState ?: (startMenuScrim.visibility != View.VISIBLE)
         if (shouldOpen) {
+            startMenuScrim.alpha = 0f
             startMenuScrim.visibility = View.VISIBLE
+            startMenuScrim.animate().alpha(1f).setDuration(180).start()
+
+            startMenuCard.scaleX = 0.92f
+            startMenuCard.scaleY = 0.92f
+            startMenuCard.alpha = 0f
             startMenuCard.visibility = View.VISIBLE
+            startMenuCard.animate()
+                .scaleX(1.0f)
+                .scaleY(1.0f)
+                .alpha(1f)
+                .setDuration(220)
+                .setInterpolator(DecelerateInterpolator(1.8f))
+                .start()
+
             searchAppsInput.text.clear()
             searchAppsInput.requestFocus()
         } else {
-            startMenuScrim.visibility = View.GONE
-            startMenuCard.visibility = View.GONE
+            startMenuScrim.animate().alpha(0f).setDuration(150).start()
+            startMenuCard.animate()
+                .scaleX(0.93f)
+                .scaleY(0.93f)
+                .alpha(0f)
+                .setDuration(150)
+                .setInterpolator(AccelerateInterpolator())
+                .withEndAction {
+                    startMenuScrim.visibility = View.GONE
+                    startMenuCard.visibility = View.GONE
+                }
+                .start()
             searchAppsInput.clearFocus()
         }
     }
@@ -951,15 +1167,28 @@ class MainActivity : AppCompatActivity() {
 
     private fun showRunningTaskContextMenu(task: ActiveTask, anchor: View): Boolean {
         val popup = PopupMenu(this, anchor)
-        popup.menu.add(0, 1, 0, getString(R.string.snap_left))
-        popup.menu.add(0, 2, 1, getString(R.string.snap_right))
-        popup.menu.add(0, 3, 2, if (task.isMaximized) getString(R.string.restore) else getString(R.string.maximize))
-        popup.menu.add(0, 4, 3, "Center Floating")
-        popup.menu.add(0, 5, 4, getString(R.string.minimize))
-        popup.menu.add(0, 6, 5, getString(R.string.close))
+        val isPinned = desktopPreferences.isPinned(task.app.componentNameString)
+        popup.menu.add(0, 10, 0, if (isPinned) "Remove from Dock" else "Keep in Dock")
+        popup.menu.add(0, 1, 1, getString(R.string.snap_left))
+        popup.menu.add(0, 2, 2, getString(R.string.snap_right))
+        popup.menu.add(0, 3, 3, if (task.isMaximized) getString(R.string.restore) else getString(R.string.maximize))
+        popup.menu.add(0, 4, 4, "Center Floating")
+        popup.menu.add(0, 5, 5, getString(R.string.minimize))
+        popup.menu.add(0, 6, 6, getString(R.string.close))
 
         popup.setOnMenuItemClickListener { item ->
             when (item.itemId) {
+                10 -> {
+                    if (isPinned) {
+                        desktopPreferences.unpinApp(task.app.componentNameString)
+                        Toast.makeText(this, "Removed ${task.app.label} from Dock", Toast.LENGTH_SHORT).show()
+                    } else {
+                        desktopPreferences.pinApp(task.app.componentNameString)
+                        Toast.makeText(this, "Pinned ${task.app.label} to Dock", Toast.LENGTH_SHORT).show()
+                    }
+                    refreshDesktopPins()
+                    true
+                }
                 1 -> { snapActiveTask(task, SnapPosition.LEFT_HALF); true }
                 2 -> { snapActiveTask(task, SnapPosition.RIGHT_HALF); true }
                 3 -> { toggleMaximizeActiveTask(task); true }

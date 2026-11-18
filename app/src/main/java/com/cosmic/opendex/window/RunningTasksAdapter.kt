@@ -44,7 +44,11 @@ class RunningTasksAdapter(
             }
 
             itemView.setOnLongClickListener { v ->
+                val clipData = android.content.ClipData.newPlainText("dock_task", task.app.componentNameString)
+                val shadow = View.DragShadowBuilder(v)
+                v.startDragAndDrop(clipData, shadow, task, View.DRAG_FLAG_GLOBAL)
                 onTaskLongClick?.invoke(task, v) ?: false
+                true
             }
 
             // Mouse secondary click
