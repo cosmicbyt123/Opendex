@@ -25,167 +25,41 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <!-- macOS-Style Top Menu Bar -->
+    <!-- Samsung DeX Style Living Desktop Clock & Glance Widget -->
     <LinearLayout
-        android:id="@+id/topMenuBar"
-        android:layout_width="match_parent"
-        android:layout_height="32dp"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:background="@drawable/bg_top_menu_bar"
-        android:elevation="12dp"
-        android:paddingStart="12dp"
-        android:paddingEnd="14dp"
+        android:id="@+id/desktopClockWidget"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginStart="52dp"
+        android:layout_marginTop="52dp"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintStart_toStartOf="parent">
 
-        <!-- OpenDeX Logo -->
-        <ImageView
-            android:layout_width="18dp"
-            android:layout_height="18dp"
-            android:src="@drawable/ic_opendex_logo"
-            android:contentDescription="OpenDeX" />
-
-        <TextView
+        <TextClock
+            android:id="@+id/widgetClockTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="OpenDeX"
+            android:format12Hour="h:mm"
+            android:format24Hour="HH:mm"
             android:textColor="#FFFFFF"
-            android:textSize="12sp"
-            android:textStyle="bold"
-            android:layout_marginStart="8dp" />
+            android:textSize="64sp"
+            android:fontFamily="sans-serif-light"
+            android:letterSpacing="-0.02" />
 
-        <!-- Active Workspace Pill -->
-        <LinearLayout
-            android:id="@+id/workspaceBadgePill"
+        <TextClock
+            android:id="@+id/widgetClockDate"
             android:layout_width="wrap_content"
-            android:layout_height="22dp"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:background="@drawable/bg_space_pill"
-            android:paddingStart="8dp"
-            android:paddingEnd="8dp"
-            android:layout_marginStart="10dp"
-            android:clickable="true"
-            android:focusable="true">
-
-            <TextView
-                android:id="@+id/workspaceBadgeText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="● Space 1"
-                android:textColor="@color/dex_accent_cyan"
-                android:textSize="11sp"
-                android:textStyle="bold" />
-        </LinearLayout>
-
-        <!-- Navigation Back Button -->
-        <FrameLayout
-            android:id="@+id/navBackButton"
-            android:layout_width="26dp"
-            android:layout_height="22dp"
-            android:layout_marginStart="6dp"
-            android:background="@drawable/bg_space_pill"
-            android:clickable="true"
-            android:focusable="true">
-
-            <ImageView
-                android:layout_width="14dp"
-                android:layout_height="14dp"
-                android:layout_gravity="center"
-                android:src="@drawable/ic_nav_back"
-                app:tint="@color/dex_text_primary"
-                android:contentDescription="Back" />
-        </FrameLayout>
-
-        <!-- Menu Bar Spacer -->
-        <View
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_weight="1" />
-
-        <!-- Top Right System Tray -->
-        <LinearLayout
-            android:id="@+id/systemTray"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <!-- Wi-Fi Status Icon -->
-            <ImageView
-                android:id="@+id/trayWifiIcon"
-                android:layout_width="16dp"
-                android:layout_height="16dp"
-                android:layout_marginEnd="10dp"
-                android:src="@drawable/ic_wifi"
-                app:tint="@color/dex_accent_cyan"
-                android:contentDescription="Wi-Fi Status"
-                android:clickable="true"
-                android:focusable="true" />
-
-            <!-- Volume / Audio Icon -->
-            <ImageView
-                android:id="@+id/trayVolumeIcon"
-                android:layout_width="16dp"
-                android:layout_height="16dp"
-                android:layout_marginEnd="10dp"
-                android:src="@drawable/ic_volume"
-                app:tint="@color/dex_accent_cyan"
-                android:contentDescription="Volume Status"
-                android:clickable="true"
-                android:focusable="true" />
-
-            <!-- Virtual Keyboard Toggle Button -->
-            <ImageView
-                android:id="@+id/trayKeyboardBtn"
-                android:layout_width="16dp"
-                android:layout_height="16dp"
-                android:layout_marginEnd="10dp"
-                android:src="@drawable/ic_keyboard"
-                app:tint="@color/dex_accent_cyan"
-                android:contentDescription="Virtual Keyboard"
-                android:clickable="true"
-                android:focusable="true" />
-
-            <!-- External Display Indicator -->
-            <ImageView
-                android:id="@+id/trayDisplayIcon"
-                android:layout_width="16dp"
-                android:layout_height="16dp"
-                android:layout_marginEnd="10dp"
-                android:src="@drawable/ic_display_connected"
-                android:visibility="gone"
-                android:contentDescription="External Display"
-                android:clickable="true"
-                android:focusable="true" />
-
-            <!-- Battery Status -->
-            <TextView
-                android:id="@+id/trayBatteryText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="100%"
-                android:textColor="@color/dex_text_primary"
-                android:textSize="11sp"
-                android:textStyle="bold"
-                android:layout_marginEnd="10dp" />
-
-            <!-- Live Clock -->
-            <TextClock
-                android:id="@+id/trayClock"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:format12Hour="h:mm a"
-                android:format24Hour="HH:mm"
-                android:textColor="@color/dex_text_primary"
-                android:textSize="11sp"
-                android:textStyle="bold" />
-        </LinearLayout>
+            android:layout_height="wrap_content"
+            android:format12Hour="EEEE, MMMM d"
+            android:format24Hour="EEEE, MMMM d"
+            android:textColor="#94A3B8"
+            android:textSize="16sp"
+            android:fontFamily="sans-serif-medium"
+            android:layout_marginTop="-4dp" />
     </LinearLayout>
 
-    <!-- Centered macOS Spotlight Search & Launchpad Overlay Scrim -->
+    <!-- Centered DeX App Drawer & Spotlight Search Overlay Scrim -->
     <FrameLayout
         android:id="@+id/startMenuScrim"
         android:layout_width="match_parent"
@@ -209,7 +83,7 @@
                 android:orientation="vertical"
                 android:padding="20dp">
 
-                <!-- macOS Spotlight Search Pill -->
+                <!-- Search Pill -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="48dp"
@@ -232,7 +106,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:background="@null"
-                        android:hint="Spotlight Search (Search apps, settings, web...)"
+                        android:hint="Search apps, settings, tools..."
                         android:textColorHint="@color/dex_text_secondary"
                         android:textColor="@color/dex_text_primary"
                         android:paddingStart="12dp"
@@ -242,7 +116,7 @@
                         android:imeOptions="actionSearch" />
                 </LinearLayout>
 
-                <!-- Launchpad 5-Column Grid -->
+                <!-- 5-Column Grid -->
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/startMenuAppGrid"
                     android:layout_width="match_parent"
@@ -250,7 +124,7 @@
                     android:layout_weight="1"
                     android:clipToPadding="false" />
 
-                <!-- Launchpad Footer -->
+                <!-- Footer -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="36dp"
@@ -280,18 +154,18 @@
         </androidx.cardview.widget.CardView>
     </FrameLayout>
 
-    <!-- Tablet Quick Settings Control Center (Drops from Top Menu Bar) -->
+    <!-- Tablet Quick Settings Control Center (Pops up from Bottom-Right above Tray) -->
     <androidx.cardview.widget.CardView
         android:id="@+id/controlCenterCard"
         android:layout_width="340dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="12dp"
-        android:layout_marginTop="6dp"
+        android:layout_marginBottom="8dp"
         android:visibility="gone"
         app:cardCornerRadius="18dp"
         app:cardElevation="28dp"
         app:cardBackgroundColor="#F20D1322"
-        app:layout_constraintTop_toBottomOf="@id/topMenuBar"
+        app:layout_constraintBottom_toTopOf="@id/taskbar"
         app:layout_constraintEnd_toEndOf="parent">
 
         <LinearLayout
@@ -440,7 +314,7 @@
                         android:textStyle="bold" />
                 </LinearLayout>
 
-                <!-- Displays / External Display Routing -->
+                <!-- Displays -->
                 <LinearLayout
                     android:id="@+id/pillDisplay"
                     android:layout_width="0dp"
@@ -553,19 +427,19 @@
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
-    <!-- macOS Mission Control Workspaces Bar (Drops from Top Menu Bar) -->
+    <!-- Workspaces / Virtual Desktops Bar (Pops up from Bottom-Left above Taskbar) -->
     <androidx.cardview.widget.CardView
         android:id="@+id/taskViewCard"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="8dp"
         android:visibility="gone"
         app:cardCornerRadius="20dp"
         app:cardElevation="28dp"
         app:cardBackgroundColor="#F20D1322"
-        app:layout_constraintTop_toBottomOf="@id/topMenuBar"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintBottom_toTopOf="@id/taskbar"
+        app:layout_constraintStart_toStartOf="parent">
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -576,7 +450,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Workspaces (Mission Control)"
+                android:text="Workspaces (Virtual Desktops)"
                 android:textColor="@color/dex_text_primary"
                 android:textSize="12sp"
                 android:textStyle="bold"
@@ -592,27 +466,26 @@
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
-    <!-- Centered macOS Floating Dock -->
+    <!-- Single Unified Samsung DeX / Lenovo PC Taskbar -->
     <LinearLayout
         android:id="@+id/taskbar"
-        android:layout_width="wrap_content"
-        android:layout_height="58dp"
-        android:layout_marginBottom="14dp"
-        android:elevation="24dp"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:elevation="16dp"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:background="@drawable/bg_floating_dock"
-        android:paddingStart="10dp"
-        android:paddingEnd="10dp"
+        android:background="@drawable/bg_dex_taskbar"
+        android:paddingStart="8dp"
+        android:paddingEnd="12dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Launchpad / Spotlight Button -->
+        <!-- App Launcher (9-Dot DeX Button) -->
         <FrameLayout
             android:id="@+id/startMenuButton"
-            android:layout_width="42dp"
-            android:layout_height="42dp"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
             android:background="@drawable/bg_taskbar_btn"
             android:clickable="true"
             android:focusable="true">
@@ -623,49 +496,177 @@
                 android:layout_gravity="center"
                 android:src="@android:drawable/ic_dialog_dialer"
                 app:tint="@color/dex_accent_cyan"
-                android:contentDescription="Launchpad" />
+                android:contentDescription="App Drawer" />
         </FrameLayout>
 
-        <!-- Subtle Dock Divider -->
-        <View
-            android:layout_width="1dp"
-            android:layout_height="26dp"
-            android:background="#2EFFFFFF"
-            android:layout_marginStart="6dp"
-            android:layout_marginEnd="6dp" />
-
-        <!-- Running / Pinned Dock Tasks List -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/runningTasksList"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:orientation="horizontal" />
-
-        <!-- Subtle Dock Divider -->
-        <View
-            android:layout_width="1dp"
-            android:layout_height="26dp"
-            android:background="#2EFFFFFF"
-            android:layout_marginStart="6dp"
-            android:layout_marginEnd="6dp" />
-
-        <!-- Virtual Desktops / Spaces Button -->
+        <!-- Navigation Back Button -->
         <FrameLayout
-            android:id="@+id/taskViewButton"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:id="@+id/navBackButton"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
+            android:layout_marginStart="4dp"
             android:background="@drawable/bg_taskbar_btn"
             android:clickable="true"
             android:focusable="true">
 
             <ImageView
-                android:layout_width="20dp"
-                android:layout_height="20dp"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_nav_back"
+                app:tint="@color/dex_text_primary"
+                android:contentDescription="Back" />
+        </FrameLayout>
+
+        <!-- Virtual Desktops Button -->
+        <FrameLayout
+            android:id="@+id/taskViewButton"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
+            android:layout_marginStart="4dp"
+            android:background="@drawable/bg_taskbar_btn"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:layout_width="18dp"
+                android:layout_height="18dp"
                 android:layout_gravity="center"
                 android:src="@drawable/ic_task_view"
                 app:tint="@color/dex_accent_cyan"
                 android:contentDescription="Virtual Desktops" />
         </FrameLayout>
+
+        <!-- Active Workspace Pill -->
+        <LinearLayout
+            android:id="@+id/workspaceBadgePill"
+            android:layout_width="wrap_content"
+            android:layout_height="24dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@drawable/bg_space_pill"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:layout_marginStart="6dp"
+            android:clickable="true"
+            android:focusable="true">
+
+            <TextView
+                android:id="@+id/workspaceBadgeText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="● Desktop 1"
+                android:textColor="@color/dex_accent_cyan"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Subtle Taskbar Divider -->
+        <View
+            android:layout_width="1dp"
+            android:layout_height="24dp"
+            android:background="#26FFFFFF"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp" />
+
+        <!-- Running & Pinned Tasks List (Takes middle space) -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/runningTasksList"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="horizontal" />
+
+        <!-- Subtle Taskbar Divider -->
+        <View
+            android:layout_width="1dp"
+            android:layout_height="24dp"
+            android:background="#26FFFFFF"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp" />
+
+        <!-- System Tray Quick Settings -->
+        <LinearLayout
+            android:id="@+id/systemTray"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp"
+            android:clickable="true"
+            android:focusable="true">
+
+            <!-- Wi-Fi Status Icon -->
+            <ImageView
+                android:id="@+id/trayWifiIcon"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_marginEnd="10dp"
+                android:src="@drawable/ic_wifi"
+                app:tint="@color/dex_accent_cyan"
+                android:contentDescription="Wi-Fi Status"
+                android:clickable="true"
+                android:focusable="true" />
+
+            <!-- Volume / Audio Icon -->
+            <ImageView
+                android:id="@+id/trayVolumeIcon"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_marginEnd="10dp"
+                android:src="@drawable/ic_volume"
+                app:tint="@color/dex_accent_cyan"
+                android:contentDescription="Volume Status"
+                android:clickable="true"
+                android:focusable="true" />
+
+            <!-- Virtual Keyboard Toggle Button -->
+            <ImageView
+                android:id="@+id/trayKeyboardBtn"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_marginEnd="10dp"
+                android:src="@drawable/ic_keyboard"
+                app:tint="@color/dex_accent_cyan"
+                android:contentDescription="Virtual Keyboard"
+                android:clickable="true"
+                android:focusable="true" />
+
+            <!-- External Display Indicator -->
+            <ImageView
+                android:id="@+id/trayDisplayIcon"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_marginEnd="10dp"
+                android:src="@drawable/ic_display_connected"
+                android:visibility="gone"
+                android:contentDescription="External Display"
+                android:clickable="true"
+                android:focusable="true" />
+
+            <!-- Battery Status -->
+            <TextView
+                android:id="@+id/trayBatteryText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="100%"
+                android:textColor="@color/dex_text_primary"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:layout_marginEnd="10dp" />
+
+            <!-- Live Clock -->
+            <TextClock
+                android:id="@+id/trayClock"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:format12Hour="h:mm a"
+                android:format24Hour="HH:mm"
+                android:textColor="@color/dex_text_primary"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+        </LinearLayout>
     </LinearLayout>
 
     <!-- Software Brightness Dimmer Overlay (dims display on laptop, monitor, or phone) -->

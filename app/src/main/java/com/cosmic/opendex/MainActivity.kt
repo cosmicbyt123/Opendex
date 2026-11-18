@@ -877,18 +877,55 @@ class MainActivity : AppCompatActivity() {
             startMenuAdapter.submitList(allLoadedApps)
             allAppsCountText.text = "${allLoadedApps.size} Applications"
 
-            // Desktop Pins: Keep only 5 core clean desktop icons on the left side
+            // Curate the 5 pure Samsung DeX essentials (Browser, Files, Gallery, Camera, Settings)
             val pinnedComponentNames = desktopPreferences.getPinnedApps().toMutableList()
-            if (pinnedComponentNames.isEmpty()) {
-                val defaultPins = allLoadedApps.take(5).map { it.componentNameString }
-                desktopPreferences.savePinnedApps(defaultPins)
-                pinnedComponentNames.addAll(defaultPins)
+            if (pinnedComponentNames.isEmpty() || pinnedComponentNames.size > 6) {
+                val curated = findCuratedDeXPins(allLoadedApps)
+                desktopPreferences.savePinnedApps(curated)
+                pinnedComponentNames.clear()
+                pinnedComponentNames.addAll(curated)
             }
 
             refreshDesktopPins(pinnedComponentNames)
             refreshRunningTasks()
-            Log.i(TAG, "Loaded ${allLoadedApps.size} apps, ${pinnedComponentNames.size} pinned to left desktop column")
+            Log.i(TAG, "Loaded ${allLoadedApps.size} apps, ${pinnedComponentNames.size} curated essentials in Dock")
         }
+    }
+
+    private fun findCuratedDeXPins(apps: List<AppModel>): List<String> {
+        val pins = mutableListOf<String>()
+
+        fun addFirstMatch(predicate: (AppModel) -> Boolean) {
+            val found = apps.find(predicate)
+            if (found != null && !pins.contains(found.componentNameString)) {
+                pins.add(found.componentNameString)
+            }
+        }
+
+        // 1. Web Browser (Chrome, Brave, etc.)
+        addFirstMatch { it.packageName.contains("chrome") || it.packageName.contains("brave") || it.label.contains("Browser", ignoreCase = true) }
+
+        // 2. File Manager
+        addFirstMatch { it.packageName.contains("file") || it.packageName.contains("documentsui") || it.label.contains("Files", ignoreCase = true) }
+
+        // 3. Gallery / Photos
+        addFirstMatch { it.packageName.contains("photos") || it.packageName.contains("gallery") || it.label.contains("Photos", ignoreCase = true) || it.label.contains("Gallery", ignoreCase = true) }
+
+        // 4. Camera
+        addFirstMatch { it.packageName.contains("camera") || it.label.equals("Camera", ignoreCase = true) }
+
+        // 5. Settings
+        addFirstMatch { it.packageName.contains("settings") || it.label.equals("Settings", ignoreCase = true) }
+
+        // Fallback to first available if fewer than 5
+        for (app in apps) {
+            if (pins.size >= 5) break
+            if (!pins.contains(app.componentNameString)) {
+                pins.add(app.componentNameString)
+            }
+        }
+
+        return pins
     }
 
     private fun refreshDesktopPins(pinnedComponents: List<String>? = null) {
