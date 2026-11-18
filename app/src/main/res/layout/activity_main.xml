@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/desktopRoot"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/dex_bg_dark">
+
+    <!-- Ambient Desktop Background Gradient / Wallpaper -->
+    <ImageView
+        android:id="@+id/desktopWallpaper"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:contentDescription="Wallpaper" />
+
+    <!-- Desktop Icon Grid (16:9 Landscape Canvas) -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/desktopIconGrid"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:padding="24dp"
+        android:clipToPadding="false"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/taskbar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Start Menu Drawer (Pop-up above Taskbar) -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/startMenuCard"
+        android:layout_width="480dp"
+        android:layout_height="520dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="8dp"
+        android:visibility="gone"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="24dp"
+        app:cardBackgroundColor="@color/dex_surface_dark"
+        app:layout_constraintBottom_toTopOf="@id/taskbar"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Search Input -->
+            <EditText
+                android:id="@+id/searchAppsInput"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:background="@drawable/bg_search_input"
+                android:hint="@string/search_apps"
+                android:textColorHint="@color/dex_text_secondary"
+                android:textColor="@color/dex_text_primary"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:textSize="14sp"
+                android:singleLine="true"
+                android:imeOptions="actionSearch" />
+
+            <!-- App Drawer Grid -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/startMenuAppGrid"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:layout_marginTop="12dp"
+                android:clipToPadding="false" />
+
+            <!-- Start Menu Footer -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingTop="8dp">
+
+                <TextView
+                    android:id="@+id/allAppsCountText"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Installed Apps"
+                    android:textColor="@color/dex_text_secondary"
+                    android:textSize="12sp" />
+
+                <ImageView
+                    android:id="@+id/desktopSettingsBtn"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:padding="4dp"
+                    android:src="@android:drawable/ic_menu_preferences"
+                    android:contentDescription="Settings"
+                    app:tint="@color/dex_text_secondary" />
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Bottom Taskbar -->
+    <LinearLayout
+        android:id="@+id/taskbar"
+        android:layout_width="match_parent"
+        android:layout_height="54dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="@color/dex_taskbar_bg"
+        android:paddingStart="12dp"
+        android:paddingEnd="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- Start Menu Button -->
+        <FrameLayout
+            android:id="@+id/startMenuButton"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:background="@drawable/bg_taskbar_btn"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="center"
+                android:src="@android:drawable/ic_dialog_dialer"
+                app:tint="@color/dex_accent_cyan"
+                android:contentDescription="Start Menu" />
+        </FrameLayout>
+
+        <!-- Running Task Bar -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/runningTasksList"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:orientation="horizontal" />
+
+        <!-- System Tray -->
+        <LinearLayout
+            android:id="@+id/systemTray"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp">
+
+            <!-- Battery Status -->
+            <TextView
+                android:id="@+id/trayBatteryText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="100%"
+                android:textColor="@color/dex_text_primary"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:layout_marginEnd="12dp" />
+
+            <!-- Live Clock -->
+            <TextClock
+                android:id="@+id/trayClock"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:format12Hour="h:mm a"
+                android:format24Hour="HH:mm"
+                android:textColor="@color/dex_text_primary"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

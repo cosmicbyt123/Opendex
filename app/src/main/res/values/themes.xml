@@ -1,0 +1,12 @@
+<resources>
+    <style name="Theme.OpenDeX" parent="Theme.MaterialComponents.NoActionBar">
+        <item name="android:windowBackground">@color/dex_bg_dark</item>
+        <item name="android:statusBarColor">#00000000</item>
+        <item name="android:navigationBarColor">#00000000</item>
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+        <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
+        <item name="colorPrimary">@color/dex_accent_blue</item>
+        <item name="colorSecondary">@color/dex_accent_cyan</item>
+    </style>
+</resources>
