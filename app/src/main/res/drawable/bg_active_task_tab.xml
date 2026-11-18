@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#26FFFFFF" />
+            <corners android:radius="6dp" />
+        </shape>
+    </item>
+    <!-- Bottom active indicator line -->
+    <item
+        android:bottom="0dp"
+        android:height="3dp">
+        <shape android:shape="rectangle">
+            <solid android:color="#00E5FF" />
+            <corners
+                android:topLeftRadius="0dp"
+                android:topRightRadius="0dp"
+                android:bottomLeftRadius="6dp"
+                android:bottomRightRadius="6dp" />
+        </shape>
+    </item>
+</layer-list>

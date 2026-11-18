@@ -5,10 +5,20 @@
     <string name="running_apps">Active Windows</string>
     <string name="minimize">Minimize</string>
     <string name="maximize">Maximize</string>
+    <string name="restore">Restore</string>
     <string name="close">Close</string>
     <string name="open">Open</string>
+    <string name="snap_left">Snap Left</string>
+    <string name="snap_right">Snap Right</string>
+    <string name="pin_to_desktop">Pin to Desktop</string>
+    <string name="unpin_from_desktop">Unpin from Desktop</string>
     <string name="pin_to_taskbar">Pin to Taskbar</string>
     <string name="app_info">App Info</string>
     <string name="uninstall">Uninstall</string>
     <string name="desktop_settings">Display Settings</string>
+    <string name="change_wallpaper">Change Wallpaper</string>
+    <string name="choose_from_gallery">Choose Image from Storage...</string>
+    <string name="external_display_connected">External Display Connected</string>
+    <string name="external_display_disconnected">External Display Disconnected</string>
+    <string name="target_display">Target Display</string>
 </resources>

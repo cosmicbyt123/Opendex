@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="36dp"
+    android:minWidth="96dp"
+    android:maxWidth="160dp"
+    android:layout_gravity="center_vertical"
+    android:layout_marginEnd="6dp"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:background="@drawable/bg_active_task_tab"
+    android:paddingStart="8dp"
+    android:paddingEnd="6dp"
+    android:clickable="true"
+    android:focusable="true">
+
+    <ImageView
+        android:id="@+id/runningTaskIcon"
+        android:layout_width="18dp"
+        android:layout_height="18dp"
+        android:contentDescription="Task Icon" />
+
+    <TextView
+        android:id="@+id/runningTaskLabel"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_marginStart="6dp"
+        android:layout_marginEnd="4dp"
+        android:text="App"
+        android:textColor="@color/dex_text_primary"
+        android:textSize="11sp"
+        android:textStyle="bold"
+        android:singleLine="true"
+        android:ellipsize="end" />
+
+    <ImageView
+        android:id="@+id/runningTaskCloseBtn"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:padding="2dp"
+        android:src="@drawable/ic_window_close"
+        android:background="@drawable/bg_decorator_close_btn"
+        android:contentDescription="Close Task" />
+
+</LinearLayout>

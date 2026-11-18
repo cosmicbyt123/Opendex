@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/windowDecoratorRoot"
+    android:layout_width="match_parent"
+    android:layout_height="38dp"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:background="@drawable/bg_window_decorator"
+    android:paddingStart="8dp"
+    android:paddingEnd="6dp">
+
+    <!-- App Icon -->
+    <ImageView
+        android:id="@+id/windowAppIcon"
+        android:layout_width="18dp"
+        android:layout_height="18dp"
+        android:contentDescription="Window Icon" />
+
+    <!-- Window Title & Drag Handle -->
+    <TextView
+        android:id="@+id/windowTitleText"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:gravity="center_vertical"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:text="Application Window"
+        android:textColor="@color/dex_text_primary"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        android:singleLine="true"
+        android:ellipsize="end" />
+
+    <!-- Snap Left Half Button -->
+    <ImageView
+        android:id="@+id/btnSnapLeft"
+        android:layout_width="28dp"
+        android:layout_height="28dp"
+        android:padding="5dp"
+        android:src="@drawable/ic_snap_left"
+        android:background="@drawable/bg_decorator_btn"
+        android:contentDescription="@string/snap_left" />
+
+    <!-- Snap Right Half Button -->
+    <ImageView
+        android:id="@+id/btnSnapRight"
+        android:layout_width="28dp"
+        android:layout_height="28dp"
+        android:layout_marginStart="2dp"
+        android:padding="5dp"
+        android:src="@drawable/ic_snap_right"
+        android:background="@drawable/bg_decorator_btn"
+        android:contentDescription="@string/snap_right" />
+
+    <!-- Minimize Button -->
+    <ImageView
+        android:id="@+id/btnMinimize"
+        android:layout_width="28dp"
+        android:layout_height="28dp"
+        android:layout_marginStart="2dp"
+        android:padding="5dp"
+        android:src="@drawable/ic_window_minimize"
+        android:background="@drawable/bg_decorator_btn"
+        android:contentDescription="@string/minimize" />
+
+    <!-- Maximize / Restore Button -->
+    <ImageView
+        android:id="@+id/btnMaximizeRestore"
+        android:layout_width="28dp"
+        android:layout_height="28dp"
+        android:layout_marginStart="2dp"
+        android:padding="5dp"
+        android:src="@drawable/ic_window_maximize"
+        android:background="@drawable/bg_decorator_btn"
+        android:contentDescription="@string/maximize" />
+
+    <!-- Close Button -->
+    <ImageView
+        android:id="@+id/btnClose"
+        android:layout_width="28dp"
+        android:layout_height="28dp"
+        android:layout_marginStart="2dp"
+        android:padding="5dp"
+        android:src="@drawable/ic_window_close"
+        android:background="@drawable/bg_decorator_close_btn"
+        android:contentDescription="@string/close" />
+
+</LinearLayout>
