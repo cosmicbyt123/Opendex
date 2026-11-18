@@ -20,6 +20,7 @@ class DesktopPreferences(context: Context) {
 
         const val WALLPAPER_TYPE_PRESET = "PRESET"
         const val WALLPAPER_TYPE_CUSTOM = "CUSTOM"
+        const val WALLPAPER_TYPE_SYSTEM = "SYSTEM"
     }
 
     fun getPinnedApps(): List<String> {
@@ -81,6 +82,12 @@ class DesktopPreferences(context: Context) {
     fun setCustomWallpaper() {
         prefs.edit()
             .putString(KEY_WALLPAPER_TYPE, WALLPAPER_TYPE_CUSTOM)
+            .apply()
+    }
+
+    fun setSystemWallpaper() {
+        prefs.edit()
+            .putString(KEY_WALLPAPER_TYPE, WALLPAPER_TYPE_SYSTEM)
             .apply()
     }
 }

@@ -15,71 +15,84 @@
         android:scaleType="centerCrop"
         android:contentDescription="Wallpaper" />
 
-    <!-- Windows-Style Left Desktop Icon Column (Clean Desktop) -->
+    <!-- Clean Empty Desktop Canvas (No Left Icons Clutter) -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/desktopIconGrid"
         android:layout_width="100dp"
         android:layout_height="0dp"
-        android:paddingTop="16dp"
-        android:paddingBottom="16dp"
-        android:paddingStart="4dp"
-        android:paddingEnd="4dp"
-        android:clipToPadding="false"
+        android:visibility="gone"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@id/taskbar"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <!-- Start Menu Drawer (Pop-up above Taskbar) -->
+    <!-- macOS-Style Centered Spotlight Search & Launchpad Overlay -->
     <androidx.cardview.widget.CardView
         android:id="@+id/startMenuCard"
-        android:layout_width="480dp"
-        android:layout_height="520dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginBottom="8dp"
+        android:layout_width="660dp"
+        android:layout_height="500dp"
         android:visibility="gone"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="24dp"
-        app:cardBackgroundColor="@color/dex_surface_dark"
+        app:cardCornerRadius="24dp"
+        app:cardElevation="32dp"
+        app:cardBackgroundColor="#F2101626"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@id/taskbar"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="20dp">
 
-            <!-- Search Input -->
-            <EditText
-                android:id="@+id/searchAppsInput"
+            <!-- macOS Spotlight Search Pill -->
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="44dp"
+                android:layout_height="50dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
                 android:background="@drawable/bg_search_input"
-                android:hint="@string/search_apps"
-                android:textColorHint="@color/dex_text_secondary"
-                android:textColor="@color/dex_text_primary"
                 android:paddingStart="16dp"
                 android:paddingEnd="16dp"
-                android:textSize="14sp"
-                android:singleLine="true"
-                android:imeOptions="actionSearch" />
+                android:layout_marginBottom="14dp">
 
-            <!-- App Drawer Grid -->
+                <ImageView
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:src="@android:drawable/ic_menu_search"
+                    app:tint="@color/dex_accent_cyan"
+                    android:contentDescription="Search" />
+
+                <EditText
+                    android:id="@+id/searchAppsInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@null"
+                    android:hint="Spotlight Search (Search apps, settings, web...)"
+                    android:textColorHint="@color/dex_text_secondary"
+                    android:textColor="@color/dex_text_primary"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:textSize="15sp"
+                    android:singleLine="true"
+                    android:imeOptions="actionSearch" />
+            </LinearLayout>
+
+            <!-- Launchpad 5-Column Grid -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/startMenuAppGrid"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
-                android:layout_marginTop="12dp"
                 android:clipToPadding="false" />
 
-            <!-- Start Menu Footer -->
+            <!-- Launchpad Footer -->
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="48dp"
+                android:layout_height="38dp"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:paddingTop="8dp">
+                android:paddingTop="6dp">
 
                 <TextView
                     android:id="@+id/allAppsCountText"
@@ -92,8 +105,8 @@
 
                 <ImageView
                     android:id="@+id/desktopSettingsBtn"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
                     android:padding="4dp"
                     android:src="@android:drawable/ic_menu_preferences"
                     android:contentDescription="Settings"
@@ -363,19 +376,19 @@
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
-    <!-- Virtual Desktops Card (Task View pop-up above Taskbar) -->
+    <!-- macOS Mission Control Style Workspaces Bar (Centered Above Dock) -->
     <androidx.cardview.widget.CardView
         android:id="@+id/taskViewCard"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="64dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="12dp"
         android:visibility="gone"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="24dp"
-        app:cardBackgroundColor="@color/dex_surface_dark"
+        app:cardCornerRadius="22dp"
+        app:cardElevation="32dp"
+        app:cardBackgroundColor="#F2101626"
         app:layout_constraintBottom_toTopOf="@id/taskbar"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -386,9 +399,9 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Virtual Desktops (Workspaces)"
+                android:text="Workspaces (Mission Control)"
                 android:textColor="@color/dex_text_primary"
-                android:textSize="14sp"
+                android:textSize="13sp"
                 android:textStyle="bold"
                 android:layout_marginBottom="12dp" />
 

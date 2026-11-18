@@ -14,7 +14,20 @@
         android:textColor="@color/dex_text_primary"
         android:textSize="18sp"
         android:textStyle="bold"
-        android:layout_marginBottom="16dp" />
+        android:layout_marginBottom="12dp" />
+
+    <!-- System Wallpaper Option -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnUseSystemWallpaper"
+        android:layout_width="match_parent"
+        android:layout_height="46dp"
+        android:text="Use Phone / Tablet Wallpaper"
+        android:textColor="@color/dex_text_primary"
+        app:icon="@drawable/ic_wallpaper"
+        app:iconTint="@color/dex_accent_cyan"
+        app:backgroundTint="#332F80ED"
+        app:cornerRadius="8dp"
+        android:layout_marginBottom="14dp" />
 
     <!-- Preset Grid (2 rows x 3 columns) -->
     <TextView

@@ -270,22 +270,14 @@ class MainActivity : AppCompatActivity() {
                     "External Display: ${info.name}\n${info.resolutionString}",
                     Toast.LENGTH_LONG
                 ).show()
-                trayDisplayIcon.visibility = View.VISIBLE
             },
             onDisplayDisconnected = { displayId ->
                 Toast.makeText(this, "External Display disconnected (#$displayId)", Toast.LENGTH_SHORT).show()
-                if (!displayDetectionManager.hasExternalDisplay()) {
-                    trayDisplayIcon.visibility = View.GONE
-                }
             },
             onDisplayChanged = { info ->
                 Log.d(TAG, "Display #${info.displayId} configuration changed: ${info.resolutionString}")
             }
         )
-
-        if (displayDetectionManager.hasExternalDisplay()) {
-            trayDisplayIcon.visibility = View.VISIBLE
-        }
 
         trayDisplayIcon.setOnClickListener {
             showDisplayRoutingDialog()
@@ -302,8 +294,8 @@ class MainActivity : AppCompatActivity() {
         )
         desktopIconGrid.adapter = desktopAdapter
 
-        // Start Menu Drawer Grid: 4-column scrollable grid for all installed apps
-        startMenuAppGrid.layoutManager = GridLayoutManager(this, 4)
+        // macOS Launchpad App Grid: 5-column centered grid
+        startMenuAppGrid.layoutManager = GridLayoutManager(this, 5)
         startMenuAdapter = AppGridAdapter(
             onAppClick = { app ->
                 toggleStartMenu(false)
@@ -496,57 +488,72 @@ class MainActivity : AppCompatActivity() {
         val current = virtualDesktopManager.getCurrentDesktop()
 
         for (desktop in desktops) {
-            val btn = MaterialButton(this).apply {
-                text = desktop.name
-                textSize = 12f
-                isAllCaps = false
-                cornerRadius = (8 * resources.displayMetrics.density).toInt()
-                val isSelected = (desktop.id == current.id)
-                strokeWidth = (1.5f * resources.displayMetrics.density).toInt()
-                strokeColor = ContextCompat.getColorStateList(
-                    this@MainActivity,
-                    if (isSelected) R.color.dex_accent_cyan else R.color.dex_taskbar_border
-                )
-                backgroundTintList = ContextCompat.getColorStateList(
-                    this@MainActivity,
-                    if (isSelected) R.color.dex_accent_glow else R.color.dex_card_bg
-                )
-                setTextColor(
-                    ContextCompat.getColor(
-                        this@MainActivity,
-                        if (isSelected) R.color.dex_accent_cyan else R.color.dex_text_primary
-                    )
-                )
-                layoutParams = LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.WRAP_CONTENT,
-                    (42 * resources.displayMetrics.density).toInt()
-                ).apply {
-                    marginEnd = (8 * resources.displayMetrics.density).toInt()
+            val isSelected = (desktop.id == current.id)
+            val card = LinearLayout(this).apply {
+                orientation = LinearLayout.VERTICAL
+                gravity = android.view.Gravity.CENTER
+                val cardWidth = (130 * resources.displayMetrics.density).toInt()
+                val cardHeight = (76 * resources.displayMetrics.density).toInt()
+                layoutParams = LinearLayout.LayoutParams(cardWidth, cardHeight).apply {
+                    marginEnd = (10 * resources.displayMetrics.density).toInt()
                 }
+                background = android.graphics.drawable.GradientDrawable().apply {
+                    shape = android.graphics.drawable.GradientDrawable.RECTANGLE
+                    cornerRadius = 14 * resources.displayMetrics.density
+                    if (isSelected) {
+                        setColor(0x4000E5FF.toInt())
+                        setStroke((2 * resources.displayMetrics.density).toInt(), 0xFF00E5FF.toInt())
+                    } else {
+                        setColor(0x26FFFFFF.toInt())
+                        setStroke((1 * resources.displayMetrics.density).toInt(), 0x33FFFFFF.toInt())
+                    }
+                }
+                isClickable = true
+                isFocusable = true
                 setOnClickListener {
                     virtualDesktopManager.switchDesktop(desktop.id - 1)
                     renderVirtualDesktops()
                     toggleTaskView(false)
-                    Toast.makeText(this@MainActivity, "Switched to ${desktop.name}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@MainActivity, "Workspace: ${desktop.name}", Toast.LENGTH_SHORT).show()
                 }
+
+                // Desktop Title & Badge
+                val title = TextView(this@MainActivity).apply {
+                    text = if (isSelected) "● ${desktop.name}" else desktop.name
+                    textSize = 13f
+                    setTypeface(null, android.graphics.Typeface.BOLD)
+                    setTextColor(if (isSelected) 0xFF00E5FF.toInt() else 0xFFF0F4F8.toInt())
+                    gravity = android.view.Gravity.CENTER
+                }
+                addView(title)
+
+                val subText = TextView(this@MainActivity).apply {
+                    text = if (isSelected) "Active Workspace" else "Click to Switch"
+                    textSize = 10f
+                    setTextColor(0xFF94A3B8.toInt())
+                    gravity = android.view.Gravity.CENTER
+                    setPadding(0, 4, 0, 0)
+                }
+                addView(subText)
             }
-            virtualDesktopsRow.addView(btn)
+            virtualDesktopsRow.addView(card)
         }
 
-        // Add "+ New Desktop" button
-        val addBtn = MaterialButton(this).apply {
-            text = "+ New Desktop"
-            textSize = 12f
-            isAllCaps = false
-            cornerRadius = (8 * resources.displayMetrics.density).toInt()
-            strokeWidth = (1f * resources.displayMetrics.density).toInt()
-            strokeColor = ContextCompat.getColorStateList(this@MainActivity, R.color.dex_accent_cyan)
-            backgroundTintList = ContextCompat.getColorStateList(this@MainActivity, R.color.dex_surface_dark)
-            setTextColor(ContextCompat.getColor(this@MainActivity, R.color.dex_accent_cyan))
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                (42 * resources.displayMetrics.density).toInt()
-            )
+        // Add "+ New Workspace" button
+        val addCard = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            gravity = android.view.Gravity.CENTER
+            val cardWidth = (90 * resources.displayMetrics.density).toInt()
+            val cardHeight = (76 * resources.displayMetrics.density).toInt()
+            layoutParams = LinearLayout.LayoutParams(cardWidth, cardHeight)
+            background = android.graphics.drawable.GradientDrawable().apply {
+                shape = android.graphics.drawable.GradientDrawable.RECTANGLE
+                cornerRadius = 14 * resources.displayMetrics.density
+                setColor(0x1A00E5FF.toInt())
+                setStroke((1.5f * resources.displayMetrics.density).toInt(), 0x8000E5FF.toInt())
+            }
+            isClickable = true
+            isFocusable = true
             setOnClickListener {
                 val newD = virtualDesktopManager.addDesktop()
                 virtualDesktopManager.switchDesktop(newD.id - 1)
@@ -554,8 +561,26 @@ class MainActivity : AppCompatActivity() {
                 toggleTaskView(false)
                 Toast.makeText(this@MainActivity, "Created ${newD.name}", Toast.LENGTH_SHORT).show()
             }
+
+            val icon = TextView(this@MainActivity).apply {
+                text = "+"
+                textSize = 22f
+                setTypeface(null, android.graphics.Typeface.BOLD)
+                setTextColor(0xFF00E5FF.toInt())
+                gravity = android.view.Gravity.CENTER
+            }
+            addView(icon)
+
+            val label = TextView(this@MainActivity).apply {
+                text = "New"
+                textSize = 11f
+                setTypeface(null, android.graphics.Typeface.BOLD)
+                setTextColor(0xFF00E5FF.toInt())
+                gravity = android.view.Gravity.CENTER
+            }
+            addView(label)
         }
-        virtualDesktopsRow.addView(addBtn)
+        virtualDesktopsRow.addView(addCard)
     }
 
     private fun toggleControlCenter(forceState: Boolean? = null) {
@@ -903,6 +928,16 @@ class MainActivity : AppCompatActivity() {
         val dialog = AlertDialog.Builder(this)
             .setView(dialogView)
             .create()
+
+        dialogView.findViewById<MaterialButton>(R.id.btnUseSystemWallpaper).setOnClickListener {
+            val success = wallpaperManager.applySystemWallpaper(desktopWallpaper)
+            if (success) {
+                Toast.makeText(this, "Device wallpaper applied", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this, "Cannot access device wallpaper", Toast.LENGTH_SHORT).show()
+            }
+            dialog.dismiss()
+        }
 
         dialogView.findViewById<View>(R.id.presetWallpaper0).setOnClickListener {
             wallpaperManager.applyPreset(0, desktopWallpaper)

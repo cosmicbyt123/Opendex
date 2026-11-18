@@ -44,11 +44,41 @@ class WallpaperManager(private val context: Context) {
                 imageView.setImageBitmap(bitmap)
                 return
             }
+        } else if (type == DesktopPreferences.WALLPAPER_TYPE_SYSTEM) {
+            val sysDrawable = getSystemWallpaperDrawable()
+            if (sysDrawable != null) {
+                imageView.setImageDrawable(sysDrawable)
+                return
+            }
+        }
+
+        // Try system wallpaper first if available, else preset
+        val sysDrawable = getSystemWallpaperDrawable()
+        if (sysDrawable != null && type != DesktopPreferences.WALLPAPER_TYPE_PRESET) {
+            imageView.setImageDrawable(sysDrawable)
+            return
         }
 
         // Default or preset
         val presetIndex = prefs.getWallpaperPresetIndex().coerceIn(0, presets.size - 1)
         imageView.setImageDrawable(ContextCompat.getDrawable(context, presets[presetIndex].drawableRes))
+    }
+
+    fun applySystemWallpaper(imageView: ImageView): Boolean {
+        val drawable = getSystemWallpaperDrawable() ?: return false
+        prefs.setSystemWallpaper()
+        imageView.setImageDrawable(drawable)
+        return true
+    }
+
+    private fun getSystemWallpaperDrawable(): android.graphics.drawable.Drawable? {
+        return try {
+            val wm = android.app.WallpaperManager.getInstance(context)
+            wm.drawable
+        } catch (e: Exception) {
+            Log.w(TAG, "Cannot load system wallpaper: ${e.message}")
+            null
+        }
     }
 
     fun applyPreset(index: Int, imageView: ImageView) {
