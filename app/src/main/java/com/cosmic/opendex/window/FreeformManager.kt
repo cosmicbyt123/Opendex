@@ -150,12 +150,18 @@ object FreeformManager {
         val screenHeight = metrics.heightPixels
         val availableHeight = (screenHeight - taskbarHeightPx).coerceAtLeast(300)
 
-        // Centered window: 65% width, 72% available height
-        val windowWidth = (screenWidth * 0.65).toInt().coerceIn(600, screenWidth)
-        val windowHeight = (availableHeight * 0.72).toInt().coerceIn(400, availableHeight)
+        // Enforce true desktop landscape window ratio (16:10 / 16:9 PC ratio)
+        val targetRatio = 1.45f
+        var windowHeight = (availableHeight * 0.70f).toInt().coerceIn(400, availableHeight)
+        var windowWidth = (windowHeight * targetRatio).toInt()
 
-        val left = (screenWidth - windowWidth) / 2
-        val top = (availableHeight - windowHeight) / 3 // Slightly higher for visual balance
+        if (windowWidth > (screenWidth * 0.92f).toInt()) {
+            windowWidth = (screenWidth * 0.92f).toInt()
+            windowHeight = (windowWidth / targetRatio).toInt().coerceAtMost(availableHeight)
+        }
+
+        val left = ((screenWidth - windowWidth) / 2).coerceAtLeast(20)
+        val top = ((availableHeight - windowHeight) / 3).coerceAtLeast(20)
         val right = left + windowWidth
         val bottom = top + windowHeight
 

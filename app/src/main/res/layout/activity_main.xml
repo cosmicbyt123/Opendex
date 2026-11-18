@@ -393,6 +393,25 @@
                 android:contentDescription="Start Menu" />
         </FrameLayout>
 
+        <!-- Navigation Back Button -->
+        <FrameLayout
+            android:id="@+id/navBackButton"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="4dp"
+            android:background="@drawable/bg_taskbar_btn"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_nav_back"
+                app:tint="@color/dex_text_primary"
+                android:contentDescription="Back" />
+        </FrameLayout>
+
         <!-- Running Task Bar -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/runningTasksList"

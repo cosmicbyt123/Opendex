@@ -70,6 +70,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var desktopIconGrid: RecyclerView
     private lateinit var startMenuCard: CardView
     private lateinit var startMenuButton: FrameLayout
+    private lateinit var navBackButton: FrameLayout
     private lateinit var startMenuAppGrid: RecyclerView
     private lateinit var searchAppsInput: EditText
     private lateinit var allAppsCountText: TextView
@@ -150,6 +151,7 @@ class MainActivity : AppCompatActivity() {
         desktopIconGrid = findViewById(R.id.desktopIconGrid)
         startMenuCard = findViewById(R.id.startMenuCard)
         startMenuButton = findViewById(R.id.startMenuButton)
+        navBackButton = findViewById(R.id.navBackButton)
         startMenuAppGrid = findViewById(R.id.startMenuAppGrid)
         searchAppsInput = findViewById(R.id.searchAppsInput)
         allAppsCountText = findViewById(R.id.allAppsCountText)
@@ -287,6 +289,10 @@ class MainActivity : AppCompatActivity() {
         startMenuButton.setOnClickListener {
             toggleControlCenter(false)
             toggleStartMenu()
+        }
+
+        navBackButton.setOnClickListener {
+            handleBackNavigation()
         }
 
         // Tap wallpaper to close cards
@@ -862,14 +868,22 @@ class MainActivity : AppCompatActivity() {
         windowDecoratorManager.removeAllDecorators()
     }
 
-    @Deprecated("Deprecated in Java")
-    override fun onBackPressed() {
+    private fun handleBackNavigation() {
         if (controlCenterCard.visibility == View.VISIBLE) {
             toggleControlCenter(false)
         } else if (startMenuCard.visibility == View.VISIBLE) {
             toggleStartMenu(false)
         } else {
-            // Desktop environment keeps desktop alive on back press
+            val nonMinimized = activeTasks.filter { !it.isMinimized }
+            if (nonMinimized.isNotEmpty()) {
+                val latest = nonMinimized.first()
+                minimizeActiveTask(latest)
+            }
         }
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onBackPressed() {
+        handleBackNavigation()
     }
 }
