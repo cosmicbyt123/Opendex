@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.res.Configuration
 import android.graphics.Rect
+import android.media.AudioManager
 import android.net.Uri
 import android.os.BatteryManager
 import android.os.Bundle
@@ -22,6 +23,7 @@ import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.SeekBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -46,6 +48,9 @@ import com.cosmic.opendex.window.SnapPosition
 import com.cosmic.opendex.window.WindowDecoratorManager
 import com.google.android.material.button.MaterialButton
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
 
@@ -71,10 +76,25 @@ class MainActivity : AppCompatActivity() {
     private lateinit var trayBatteryText: TextView
     private lateinit var trayDisplayIcon: ImageView
     private lateinit var taskbar: LinearLayout
+    private lateinit var systemTray: LinearLayout
     private lateinit var runningTasksList: RecyclerView
+
+    // Tablet Control Center
+    private lateinit var controlCenterCard: CardView
+    private lateinit var ccDateText: TextView
+    private lateinit var ccSettingsBtn: ImageView
+    private lateinit var pillWifi: LinearLayout
+    private lateinit var pillBluetooth: LinearLayout
+    private lateinit var pillRotation: LinearLayout
+    private lateinit var pillDisplay: LinearLayout
+    private lateinit var brightnessSeekBar: SeekBar
+    private lateinit var volumeSeekBar: SeekBar
+    private lateinit var ccBatteryPercent: TextView
+    private lateinit var ccPowerBtn: ImageView
 
     private val activeTasks = mutableListOf<ActiveTask>()
     private var allLoadedApps = listOf<AppModel>()
+    private var currentBatteryPct: Int = 100
 
     private val wallpaperPickerLauncher = registerForActivityResult(
         ActivityResultContracts.GetContent()
@@ -97,8 +117,11 @@ class MainActivity : AppCompatActivity() {
                 val level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1)
                 val scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1)
                 if (level >= 0 && scale > 0) {
-                    val batteryPct = (level * 100 / scale.toFloat()).toInt()
-                    trayBatteryText.text = "$batteryPct%"
+                    currentBatteryPct = (level * 100 / scale.toFloat()).toInt()
+                    trayBatteryText.text = "$currentBatteryPct%"
+                    if (::ccBatteryPercent.isInitialized) {
+                        ccBatteryPercent.text = "Battery: $currentBatteryPct%"
+                    }
                 }
             }
         }
@@ -117,6 +140,7 @@ class MainActivity : AppCompatActivity() {
         setupDisplayDetection()
         setupAdapters()
         setupListeners()
+        setupControlCenter()
         wallpaperManager.applyWallpaper(desktopWallpaper)
         loadApplications()
     }
@@ -132,7 +156,21 @@ class MainActivity : AppCompatActivity() {
         trayBatteryText = findViewById(R.id.trayBatteryText)
         trayDisplayIcon = findViewById(R.id.trayDisplayIcon)
         taskbar = findViewById(R.id.taskbar)
+        systemTray = findViewById(R.id.systemTray)
         runningTasksList = findViewById(R.id.runningTasksList)
+
+        // Control Center
+        controlCenterCard = findViewById(R.id.controlCenterCard)
+        ccDateText = findViewById(R.id.ccDateText)
+        ccSettingsBtn = findViewById(R.id.ccSettingsBtn)
+        pillWifi = findViewById(R.id.pillWifi)
+        pillBluetooth = findViewById(R.id.pillBluetooth)
+        pillRotation = findViewById(R.id.pillRotation)
+        pillDisplay = findViewById(R.id.pillDisplay)
+        brightnessSeekBar = findViewById(R.id.brightnessSeekBar)
+        volumeSeekBar = findViewById(R.id.volumeSeekBar)
+        ccBatteryPercent = findViewById(R.id.ccBatteryPercent)
+        ccPowerBtn = findViewById(R.id.ccPowerBtn)
     }
 
     private fun setupWindowDecorators() {
@@ -198,8 +236,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupAdapters() {
-        // Desktop Grid (Landscape canvas: 6 columns, Portrait: 4 columns)
-        val desktopColumns = if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) 6 else 4
+        // Responsive Tablet / Desktop Canvas (8 columns for large tablet >=800dp, 6 for 600dp, 4 for portrait)
+        val screenWidthDp = resources.configuration.screenWidthDp
+        val desktopColumns = when {
+            screenWidthDp >= 800 -> 8
+            screenWidthDp >= 600 -> 6
+            resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE -> 6
+            else -> 4
+        }
         desktopIconGrid.layoutManager = GridLayoutManager(this, desktopColumns)
 
         desktopAdapter = AppGridAdapter(
@@ -241,12 +285,14 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupListeners() {
         startMenuButton.setOnClickListener {
+            toggleControlCenter(false)
             toggleStartMenu()
         }
 
-        // Tap wallpaper to close start menu
+        // Tap wallpaper to close cards
         desktopWallpaper.setOnClickListener {
             toggleStartMenu(false)
+            toggleControlCenter(false)
         }
 
         // Right-click or long-press on wallpaper opens desktop context menu
@@ -279,6 +325,126 @@ class MainActivity : AppCompatActivity() {
         findViewById<View>(R.id.desktopSettingsBtn).setOnClickListener {
             showDesktopSettingsDialog()
         }
+    }
+
+    private fun setupControlCenter() {
+        // System Tray opens/closes Control Center
+        systemTray.setOnClickListener {
+            toggleStartMenu(false)
+            toggleControlCenter()
+        }
+
+        // Volume control
+        val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        val maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
+        val currentVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
+        volumeSeekBar.max = maxVolume
+        volumeSeekBar.progress = currentVolume
+
+        volumeSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                if (fromUser) {
+                    audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, progress, 0)
+                }
+            }
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+        })
+
+        // Brightness control
+        brightnessSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                if (fromUser) {
+                    val lp = window.attributes
+                    lp.screenBrightness = (progress / 100f).coerceIn(0.05f, 1.0f)
+                    window.attributes = lp
+                }
+            }
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+        })
+
+        // Quick Pills
+        pillWifi.setOnClickListener {
+            try {
+                startActivity(Intent(Settings.ACTION_WIFI_SETTINGS))
+            } catch (e: Exception) {
+                Toast.makeText(this, "Cannot open Wi-Fi settings", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        pillBluetooth.setOnClickListener {
+            try {
+                startActivity(Intent(Settings.ACTION_BLUETOOTH_SETTINGS))
+            } catch (e: Exception) {
+                Toast.makeText(this, "Cannot open Bluetooth settings", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        pillRotation.setOnClickListener {
+            try {
+                startActivity(Intent(Settings.ACTION_DISPLAY_SETTINGS))
+            } catch (e: Exception) {
+                Toast.makeText(this, "Cannot open Display settings", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        pillDisplay.setOnClickListener {
+            toggleControlCenter(false)
+            showDisplayRoutingDialog()
+        }
+
+        ccSettingsBtn.setOnClickListener {
+            try {
+                startActivity(Intent(Settings.ACTION_SETTINGS))
+            } catch (e: Exception) {
+                Toast.makeText(this, "Cannot open Settings", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        ccPowerBtn.setOnClickListener {
+            showPowerDialog()
+        }
+    }
+
+    private fun toggleControlCenter(forceState: Boolean? = null) {
+        val shouldOpen = forceState ?: (controlCenterCard.visibility != View.VISIBLE)
+        if (shouldOpen) {
+            val dateFormat = SimpleDateFormat("EEEE, MMM d", Locale.getDefault())
+            ccDateText.text = dateFormat.format(Date())
+            ccBatteryPercent.text = "Battery: $currentBatteryPct%"
+
+            val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+            volumeSeekBar.progress = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
+
+            controlCenterCard.visibility = View.VISIBLE
+        } else {
+            controlCenterCard.visibility = View.GONE
+        }
+    }
+
+    private fun showPowerDialog() {
+        val options = arrayOf("Lock Screen", "Screen Sleep", "Open Settings", "Cancel")
+        AlertDialog.Builder(this)
+            .setTitle("Power Options")
+            .setItems(options) { dialog, which ->
+                when (which) {
+                    0, 1 -> {
+                        // Minimize windows and lock
+                        for (task in activeTasks) {
+                            task.isMinimized = true
+                        }
+                        refreshRunningTasks()
+                        windowDecoratorManager.removeAllDecorators()
+                        toggleControlCenter(false)
+                    }
+                    2 -> {
+                        startActivity(Intent(Settings.ACTION_SETTINGS))
+                    }
+                }
+                dialog.dismiss()
+            }
+            .show()
     }
 
     private fun loadApplications() {
@@ -668,6 +834,7 @@ class MainActivity : AppCompatActivity() {
             keyCode == KeyEvent.KEYCODE_META_RIGHT ||
             keyCode == KeyEvent.KEYCODE_WINDOW
         ) {
+            toggleControlCenter(false)
             toggleStartMenu()
             return true
         }
@@ -697,7 +864,9 @@ class MainActivity : AppCompatActivity() {
 
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
-        if (startMenuCard.visibility == View.VISIBLE) {
+        if (controlCenterCard.visibility == View.VISIBLE) {
+            toggleControlCenter(false)
+        } else if (startMenuCard.visibility == View.VISIBLE) {
             toggleStartMenu(false)
         } else {
             // Desktop environment keeps desktop alive on back press
