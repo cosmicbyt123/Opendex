@@ -1,0 +1,16 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Windows 11 Task View / Virtual Desktop icon (overlapping windows / workspaces) -->
+    <path
+        android:fillColor="#00E5FF"
+        android:pathData="M3,5h12v10H3V5z M5,7v6h8V7H5z" />
+    <path
+        android:fillColor="#94A3B8"
+        android:pathData="M9,3h12v10h-2V5H9V3z" />
+    <path
+        android:fillColor="#94A3B8"
+        android:pathData="M7,17h14v2H7V17z" />
+</vector>

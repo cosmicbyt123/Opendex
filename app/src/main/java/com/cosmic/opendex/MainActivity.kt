@@ -5,7 +5,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.content.res.Configuration
 import android.graphics.Rect
 import android.media.AudioManager
 import android.net.Uri
@@ -30,6 +29,9 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.PopupMenu
 import androidx.cardview.widget.CardView
+import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -38,6 +40,8 @@ import com.cosmic.opendex.data.AppModel
 import com.cosmic.opendex.data.AppRepository
 import com.cosmic.opendex.desktop.AppGridAdapter
 import com.cosmic.opendex.desktop.DesktopPreferences
+import com.cosmic.opendex.desktop.VirtualDesktop
+import com.cosmic.opendex.desktop.VirtualDesktopManager
 import com.cosmic.opendex.desktop.WallpaperManager
 import com.cosmic.opendex.display.DisplayDetectionManager
 import com.cosmic.opendex.display.DisplayInfoModel
@@ -61,6 +65,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var wallpaperManager: WallpaperManager
     private lateinit var displayDetectionManager: DisplayDetectionManager
     private lateinit var windowDecoratorManager: WindowDecoratorManager
+    private lateinit var virtualDesktopManager: VirtualDesktopManager
 
     private lateinit var desktopAdapter: AppGridAdapter
     private lateinit var startMenuAdapter: AppGridAdapter
@@ -71,6 +76,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var startMenuCard: CardView
     private lateinit var startMenuButton: FrameLayout
     private lateinit var navBackButton: FrameLayout
+    private lateinit var taskViewButton: FrameLayout
+    private lateinit var taskViewCard: CardView
+    private lateinit var virtualDesktopsRow: LinearLayout
     private lateinit var startMenuAppGrid: RecyclerView
     private lateinit var searchAppsInput: EditText
     private lateinit var allAppsCountText: TextView
@@ -135,15 +143,31 @@ class MainActivity : AppCompatActivity() {
         appRepository = AppRepository(this)
         desktopPreferences = DesktopPreferences(this)
         wallpaperManager = WallpaperManager(this)
+        virtualDesktopManager = VirtualDesktopManager()
 
         bindViews()
+        setupWindowInsets()
         setupWindowDecorators()
         setupDisplayDetection()
         setupAdapters()
         setupListeners()
         setupControlCenter()
+        setupVirtualDesktops()
         wallpaperManager.applyWallpaper(desktopWallpaper)
         loadApplications()
+    }
+
+    private fun setupWindowInsets() {
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.desktopRoot)) { _, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            taskbar.setPadding(
+                taskbar.paddingLeft,
+                taskbar.paddingTop,
+                taskbar.paddingRight,
+                systemBars.bottom.coerceAtLeast(0)
+            )
+            insets
+        }
     }
 
     private fun bindViews() {
@@ -152,6 +176,9 @@ class MainActivity : AppCompatActivity() {
         startMenuCard = findViewById(R.id.startMenuCard)
         startMenuButton = findViewById(R.id.startMenuButton)
         navBackButton = findViewById(R.id.navBackButton)
+        taskViewButton = findViewById(R.id.taskViewButton)
+        taskViewCard = findViewById(R.id.taskViewCard)
+        virtualDesktopsRow = findViewById(R.id.virtualDesktopsRow)
         startMenuAppGrid = findViewById(R.id.startMenuAppGrid)
         searchAppsInput = findViewById(R.id.searchAppsInput)
         allAppsCountText = findViewById(R.id.allAppsCountText)
@@ -227,7 +254,6 @@ class MainActivity : AppCompatActivity() {
             }
         )
 
-        // Check if external displays are already connected
         if (displayDetectionManager.hasExternalDisplay()) {
             trayDisplayIcon.visibility = View.VISIBLE
         }
@@ -238,15 +264,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupAdapters() {
-        // Responsive Tablet / Desktop Canvas (8 columns for large tablet >=800dp, 6 for 600dp, 4 for portrait)
-        val screenWidthDp = resources.configuration.screenWidthDp
-        val desktopColumns = when {
-            screenWidthDp >= 800 -> 8
-            screenWidthDp >= 600 -> 6
-            resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE -> 6
-            else -> 4
-        }
-        desktopIconGrid.layoutManager = GridLayoutManager(this, desktopColumns)
+        // Windows Desktop Clean Column: Vertical strip of pinned core icons on left edge
+        desktopIconGrid.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
 
         desktopAdapter = AppGridAdapter(
             onAppClick = { app -> launchApplication(app) },
@@ -254,7 +273,7 @@ class MainActivity : AppCompatActivity() {
         )
         desktopIconGrid.adapter = desktopAdapter
 
-        // Start Menu Drawer Grid
+        // Start Menu Drawer Grid: 4-column scrollable grid for all installed apps
         startMenuAppGrid.layoutManager = GridLayoutManager(this, 4)
         startMenuAdapter = AppGridAdapter(
             onAppClick = { app ->
@@ -288,6 +307,7 @@ class MainActivity : AppCompatActivity() {
     private fun setupListeners() {
         startMenuButton.setOnClickListener {
             toggleControlCenter(false)
+            toggleTaskView(false)
             toggleStartMenu()
         }
 
@@ -295,10 +315,17 @@ class MainActivity : AppCompatActivity() {
             handleBackNavigation()
         }
 
-        // Tap wallpaper to close cards
+        taskViewButton.setOnClickListener {
+            toggleStartMenu(false)
+            toggleControlCenter(false)
+            toggleTaskView()
+        }
+
+        // Tap wallpaper to close all cards
         desktopWallpaper.setOnClickListener {
             toggleStartMenu(false)
             toggleControlCenter(false)
+            toggleTaskView(false)
         }
 
         // Right-click or long-press on wallpaper opens desktop context menu
@@ -334,13 +361,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupControlCenter() {
-        // System Tray opens/closes Control Center
         systemTray.setOnClickListener {
             toggleStartMenu(false)
+            toggleTaskView(false)
             toggleControlCenter()
         }
 
-        // Volume control
         val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
         val maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
         val currentVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
@@ -357,7 +383,6 @@ class MainActivity : AppCompatActivity() {
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
         })
 
-        // Brightness control
         brightnessSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 if (fromUser) {
@@ -370,7 +395,6 @@ class MainActivity : AppCompatActivity() {
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
         })
 
-        // Quick Pills
         pillWifi.setOnClickListener {
             try {
                 startActivity(Intent(Settings.ACTION_WIFI_SETTINGS))
@@ -413,6 +437,88 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun setupVirtualDesktops() {
+        renderVirtualDesktops()
+    }
+
+    private fun toggleTaskView(forceState: Boolean? = null) {
+        val shouldOpen = forceState ?: (taskViewCard.visibility != View.VISIBLE)
+        if (shouldOpen) {
+            renderVirtualDesktops()
+            taskViewCard.visibility = View.VISIBLE
+        } else {
+            taskViewCard.visibility = View.GONE
+        }
+    }
+
+    private fun renderVirtualDesktops() {
+        virtualDesktopsRow.removeAllViews()
+        val desktops = virtualDesktopManager.getDesktops()
+        val current = virtualDesktopManager.getCurrentDesktop()
+
+        for (desktop in desktops) {
+            val btn = MaterialButton(this).apply {
+                text = desktop.name
+                textSize = 12f
+                isAllCaps = false
+                cornerRadius = (8 * resources.displayMetrics.density).toInt()
+                val isSelected = (desktop.id == current.id)
+                strokeWidth = (1.5f * resources.displayMetrics.density).toInt()
+                strokeColor = ContextCompat.getColorStateList(
+                    this@MainActivity,
+                    if (isSelected) R.color.dex_accent_cyan else R.color.dex_taskbar_border
+                )
+                backgroundTintList = ContextCompat.getColorStateList(
+                    this@MainActivity,
+                    if (isSelected) R.color.dex_accent_glow else R.color.dex_card_bg
+                )
+                setTextColor(
+                    ContextCompat.getColor(
+                        this@MainActivity,
+                        if (isSelected) R.color.dex_accent_cyan else R.color.dex_text_primary
+                    )
+                )
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    (42 * resources.displayMetrics.density).toInt()
+                ).apply {
+                    marginEnd = (8 * resources.displayMetrics.density).toInt()
+                }
+                setOnClickListener {
+                    virtualDesktopManager.switchDesktop(desktop.id - 1)
+                    renderVirtualDesktops()
+                    toggleTaskView(false)
+                    Toast.makeText(this@MainActivity, "Switched to ${desktop.name}", Toast.LENGTH_SHORT).show()
+                }
+            }
+            virtualDesktopsRow.addView(btn)
+        }
+
+        // Add "+ New Desktop" button
+        val addBtn = MaterialButton(this).apply {
+            text = "+ New Desktop"
+            textSize = 12f
+            isAllCaps = false
+            cornerRadius = (8 * resources.displayMetrics.density).toInt()
+            strokeWidth = (1f * resources.displayMetrics.density).toInt()
+            strokeColor = ContextCompat.getColorStateList(this@MainActivity, R.color.dex_accent_cyan)
+            backgroundTintList = ContextCompat.getColorStateList(this@MainActivity, R.color.dex_surface_dark)
+            setTextColor(ContextCompat.getColor(this@MainActivity, R.color.dex_accent_cyan))
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                (42 * resources.displayMetrics.density).toInt()
+            )
+            setOnClickListener {
+                val newD = virtualDesktopManager.addDesktop()
+                virtualDesktopManager.switchDesktop(newD.id - 1)
+                renderVirtualDesktops()
+                toggleTaskView(false)
+                Toast.makeText(this@MainActivity, "Created ${newD.name}", Toast.LENGTH_SHORT).show()
+            }
+        }
+        virtualDesktopsRow.addView(addBtn)
+    }
+
     private fun toggleControlCenter(forceState: Boolean? = null) {
         val shouldOpen = forceState ?: (controlCenterCard.visibility != View.VISIBLE)
         if (shouldOpen) {
@@ -436,7 +542,6 @@ class MainActivity : AppCompatActivity() {
             .setItems(options) { dialog, which ->
                 when (which) {
                     0, 1 -> {
-                        // Minimize windows and lock
                         for (task in activeTasks) {
                             task.isMinimized = true
                         }
@@ -459,17 +564,16 @@ class MainActivity : AppCompatActivity() {
             startMenuAdapter.submitList(allLoadedApps)
             allAppsCountText.text = "${allLoadedApps.size} Applications"
 
-            // Load or initialize desktop pins
+            // Desktop Pins: Keep only 5 core clean desktop icons on the left side
             val pinnedComponentNames = desktopPreferences.getPinnedApps().toMutableList()
             if (pinnedComponentNames.isEmpty()) {
-                // First run: automatically pin top core applications
-                val defaultPins = allLoadedApps.take(16).map { it.componentNameString }
+                val defaultPins = allLoadedApps.take(5).map { it.componentNameString }
                 desktopPreferences.savePinnedApps(defaultPins)
                 pinnedComponentNames.addAll(defaultPins)
             }
 
             refreshDesktopPins(pinnedComponentNames)
-            Log.i(TAG, "Loaded ${allLoadedApps.size} apps, ${pinnedComponentNames.size} pinned to desktop")
+            Log.i(TAG, "Loaded ${allLoadedApps.size} apps, ${pinnedComponentNames.size} pinned to left desktop column")
         }
     }
 
@@ -568,7 +672,6 @@ class MainActivity : AppCompatActivity() {
         windowDecoratorManager.hideDecorator(task.id)
         refreshRunningTasks()
 
-        // Bring OpenDeX home desktop back to the top
         val intent = Intent(this, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT or Intent.FLAG_ACTIVITY_SINGLE_TOP
         }
@@ -770,6 +873,14 @@ class MainActivity : AppCompatActivity() {
             wallpaperManager.applyPreset(3, desktopWallpaper)
             dialog.dismiss()
         }
+        dialogView.findViewById<View>(R.id.presetWallpaper4).setOnClickListener {
+            wallpaperManager.applyPreset(4, desktopWallpaper)
+            dialog.dismiss()
+        }
+        dialogView.findViewById<View>(R.id.presetWallpaper5).setOnClickListener {
+            wallpaperManager.applyPreset(5, desktopWallpaper)
+            dialog.dismiss()
+        }
 
         dialogView.findViewById<MaterialButton>(R.id.btnPickCustomWallpaper).setOnClickListener {
             dialog.dismiss()
@@ -834,13 +945,29 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun handleBackNavigation() {
+        if (taskViewCard.visibility == View.VISIBLE) {
+            toggleTaskView(false)
+        } else if (controlCenterCard.visibility == View.VISIBLE) {
+            toggleControlCenter(false)
+        } else if (startMenuCard.visibility == View.VISIBLE) {
+            toggleStartMenu(false)
+        } else {
+            val nonMinimized = activeTasks.filter { !it.isMinimized }
+            if (nonMinimized.isNotEmpty()) {
+                val latest = nonMinimized.first()
+                minimizeActiveTask(latest)
+            }
+        }
+    }
+
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        // Physical Keyboard Win/Super Key opens Start Menu
         if (keyCode == KeyEvent.KEYCODE_META_LEFT ||
             keyCode == KeyEvent.KEYCODE_META_RIGHT ||
             keyCode == KeyEvent.KEYCODE_WINDOW
         ) {
             toggleControlCenter(false)
+            toggleTaskView(false)
             toggleStartMenu()
             return true
         }
@@ -866,20 +993,6 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         windowDecoratorManager.removeAllDecorators()
-    }
-
-    private fun handleBackNavigation() {
-        if (controlCenterCard.visibility == View.VISIBLE) {
-            toggleControlCenter(false)
-        } else if (startMenuCard.visibility == View.VISIBLE) {
-            toggleStartMenu(false)
-        } else {
-            val nonMinimized = activeTasks.filter { !it.isMinimized }
-            if (nonMinimized.isNotEmpty()) {
-                val latest = nonMinimized.first()
-                minimizeActiveTask(latest)
-            }
-        }
     }
 
     @Deprecated("Deprecated in Java")

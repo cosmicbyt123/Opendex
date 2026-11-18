@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Deep Arctic night base -->
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:type="linear"
+                android:angle="90"
+                android:startColor="#010B10"
+                android:centerColor="#041E26"
+                android:endColor="#02080D" />
+        </shape>
+    </item>
+    <!-- Northern Emerald Aurora Ribbon -->
+    <item
+        android:top="40dp"
+        android:bottom="160dp"
+        android:left="120dp"
+        android:right="120dp">
+        <shape android:shape="oval">
+            <gradient
+                android:type="radial"
+                android:gradientRadius="550dp"
+                android:startColor="#6610B981"
+                android:centerColor="#2E06B6D4"
+                android:endColor="#00000000" />
+        </shape>
+    </item>
+    <!-- Cyan shimmer layer -->
+    <item
+        android:top="120dp"
+        android:bottom="200dp"
+        android:left="280dp"
+        android:right="200dp">
+        <shape android:shape="oval">
+            <gradient
+                android:type="radial"
+                android:gradientRadius="380dp"
+                android:startColor="#4D00E5FF"
+                android:centerColor="#1A059669"
+                android:endColor="#00000000" />
+        </shape>
+    </item>
+</layer-list>

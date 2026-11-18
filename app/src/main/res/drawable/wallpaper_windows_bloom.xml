@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Deep midnight navy base -->
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:type="linear"
+                android:angle="135"
+                android:startColor="#030712"
+                android:centerColor="#0B1329"
+                android:endColor="#020617" />
+        </shape>
+    </item>
+    <!-- Central luminous Bloom / Flow glow -->
+    <item
+        android:top="100dp"
+        android:bottom="80dp"
+        android:left="250dp"
+        android:right="150dp">
+        <shape android:shape="oval">
+            <gradient
+                android:type="radial"
+                android:gradientRadius="480dp"
+                android:startColor="#6600E5FF"
+                android:centerColor="#332F80ED"
+                android:endColor="#00000000" />
+        </shape>
+    </item>
+    <!-- Secondary violet petal bloom -->
+    <item
+        android:top="180dp"
+        android:bottom="140dp"
+        android:left="380dp"
+        android:right="260dp">
+        <shape android:shape="oval">
+            <gradient
+                android:type="radial"
+                android:gradientRadius="350dp"
+                android:startColor="#59A855F7"
+                android:centerColor="#266366F1"
+                android:endColor="#00000000" />
+        </shape>
+    </item>
+</layer-list>

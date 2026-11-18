@@ -15,17 +15,19 @@
         android:scaleType="centerCrop"
         android:contentDescription="Wallpaper" />
 
-    <!-- Desktop Icon Grid (16:9 Landscape Canvas) -->
+    <!-- Windows-Style Left Desktop Icon Column (Clean Desktop) -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/desktopIconGrid"
-        android:layout_width="0dp"
+        android:layout_width="100dp"
         android:layout_height="0dp"
-        android:padding="24dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp"
+        android:paddingStart="4dp"
+        android:paddingEnd="4dp"
         android:clipToPadding="false"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@id/taskbar"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintStart_toStartOf="parent" />
 
     <!-- Start Menu Drawer (Pop-up above Taskbar) -->
     <androidx.cardview.widget.CardView
@@ -361,11 +363,51 @@
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
+    <!-- Virtual Desktops Card (Task View pop-up above Taskbar) -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/taskViewCard"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="64dp"
+        android:layout_marginBottom="8dp"
+        android:visibility="gone"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="24dp"
+        app:cardBackgroundColor="@color/dex_surface_dark"
+        app:layout_constraintBottom_toTopOf="@id/taskbar"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Virtual Desktops (Workspaces)"
+                android:textColor="@color/dex_text_primary"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="12dp" />
+
+            <!-- Desktops Row -->
+            <LinearLayout
+                android:id="@+id/virtualDesktopsRow"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
     <!-- Bottom Taskbar -->
     <LinearLayout
         android:id="@+id/taskbar"
         android:layout_width="match_parent"
-        android:layout_height="54dp"
+        android:layout_height="56dp"
+        android:elevation="16dp"
         android:orientation="horizontal"
         android:gravity="center_vertical"
         android:background="@color/dex_taskbar_bg"
@@ -410,6 +452,25 @@
                 android:src="@drawable/ic_nav_back"
                 app:tint="@color/dex_text_primary"
                 android:contentDescription="Back" />
+        </FrameLayout>
+
+        <!-- Task View / Virtual Desktops Button -->
+        <FrameLayout
+            android:id="@+id/taskViewButton"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="4dp"
+            android:background="@drawable/bg_taskbar_btn"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_task_view"
+                app:tint="@color/dex_accent_cyan"
+                android:contentDescription="Virtual Desktops" />
         </FrameLayout>
 
         <!-- Running Task Bar -->
