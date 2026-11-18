@@ -28,6 +28,7 @@ class WallpaperManager(private val context: Context) {
     data class Preset(val title: String, val drawableRes: Int)
 
     val presets = listOf(
+        Preset("Cosmic Sequoia", R.drawable.wallpaper_cosmic_sequoia),
         Preset("Windows 11 Bloom", R.drawable.wallpaper_windows_bloom),
         Preset("Aurora Borealis", R.drawable.wallpaper_aurora_borealis),
         Preset("Cyberpunk Midnight", R.drawable.wallpaper_cyberpunk),

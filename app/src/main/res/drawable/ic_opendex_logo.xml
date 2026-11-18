@@ -1,0 +1,16 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Futuristic OpenDeX Geometric Hex Diamond -->
+    <path
+        android:fillColor="#00E5FF"
+        android:pathData="M12,2 L21,7.5 L21,16.5 L12,22 L3,16.5 L3,7.5 Z" />
+    <path
+        android:fillColor="#0A0E1A"
+        android:pathData="M12,5 L18,8.5 L18,15.5 L12,19 L6,15.5 L6,8.5 Z" />
+    <path
+        android:fillColor="#00E5FF"
+        android:pathData="M12,8 L15,10 L15,14 L12,16 L9,14 L9,10 Z" />
+</vector>

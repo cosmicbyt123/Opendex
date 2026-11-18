@@ -86,7 +86,10 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var desktopWallpaper: ImageView
     private lateinit var desktopIconGrid: RecyclerView
+    private lateinit var startMenuScrim: FrameLayout
     private lateinit var startMenuCard: CardView
+    private lateinit var workspaceBadgePill: LinearLayout
+    private lateinit var workspaceBadgeText: TextView
     private lateinit var startMenuButton: FrameLayout
     private lateinit var navBackButton: FrameLayout
     private lateinit var taskViewButton: FrameLayout
@@ -205,7 +208,10 @@ class MainActivity : AppCompatActivity() {
     private fun bindViews() {
         desktopWallpaper = findViewById(R.id.desktopWallpaper)
         desktopIconGrid = findViewById(R.id.desktopIconGrid)
+        startMenuScrim = findViewById(R.id.startMenuScrim)
         startMenuCard = findViewById(R.id.startMenuCard)
+        workspaceBadgePill = findViewById(R.id.workspaceBadgePill)
+        workspaceBadgeText = findViewById(R.id.workspaceBadgeText)
         startMenuButton = findViewById(R.id.startMenuButton)
         navBackButton = findViewById(R.id.navBackButton)
         taskViewButton = findViewById(R.id.taskViewButton)
@@ -316,14 +322,18 @@ class MainActivity : AppCompatActivity() {
         runningTasksList.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         runningTasksAdapter = RunningTasksAdapter(
             onTaskClick = { task ->
-                if (task.isMinimized) {
+                if (task.isPinnedOnly) {
+                    launchApplication(task.app)
+                } else if (task.isMinimized) {
                     restoreActiveTask(task)
                 } else {
                     minimizeActiveTask(task)
                 }
             },
             onTaskClose = { task ->
-                closeActiveTask(task)
+                if (!task.isPinnedOnly) {
+                    closeActiveTask(task)
+                }
             },
             onTaskLongClick = { task, v ->
                 showRunningTaskContextMenu(task, v)
@@ -337,6 +347,20 @@ class MainActivity : AppCompatActivity() {
             toggleControlCenter(false)
             toggleTaskView(false)
             toggleStartMenu()
+        }
+
+        workspaceBadgePill.setOnClickListener {
+            toggleStartMenu(false)
+            toggleControlCenter(false)
+            toggleTaskView()
+        }
+
+        startMenuScrim.setOnClickListener {
+            toggleStartMenu(false)
+        }
+
+        startMenuCard.setOnClickListener {
+            // Absorb clicks so card doesn't dismiss when clicked inside
         }
 
         navBackButton.setOnClickListener {
@@ -516,6 +540,9 @@ class MainActivity : AppCompatActivity() {
         virtualDesktopsRow.removeAllViews()
         val desktops = virtualDesktopManager.getDesktops()
         val current = virtualDesktopManager.getCurrentDesktop()
+        if (::workspaceBadgeText.isInitialized) {
+            workspaceBadgeText.text = "● ${current.name}"
+        }
 
         for (desktop in desktops) {
             val isSelected = (desktop.id == current.id)
@@ -667,6 +694,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             refreshDesktopPins(pinnedComponentNames)
+            refreshRunningTasks()
             Log.i(TAG, "Loaded ${allLoadedApps.size} apps, ${pinnedComponentNames.size} pinned to left desktop column")
         }
     }
@@ -677,6 +705,7 @@ class MainActivity : AppCompatActivity() {
             allLoadedApps.find { it.componentNameString == cmp }
         }
         desktopAdapter.submitList(pinnedAppModels)
+        refreshRunningTasks()
     }
 
     fun launchApplication(app: AppModel, snap: SnapPosition = SnapPosition.CENTER_FLOAT) {
@@ -799,16 +828,34 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun refreshRunningTasks() {
-        runningTasksAdapter.submitList(activeTasks.toList())
+        val dockList = mutableListOf<ActiveTask>()
+        // 1. Active running tasks
+        dockList.addAll(activeTasks)
+
+        // 2. Pinned apps not currently running
+        val pinnedComponents = desktopPreferences.getPinnedApps()
+        for (cmp in pinnedComponents) {
+            val isAlreadyRunning = activeTasks.any { it.app.componentNameString == cmp }
+            if (!isAlreadyRunning) {
+                val app = allLoadedApps.find { it.componentNameString == cmp }
+                if (app != null) {
+                    dockList.add(ActiveTask(app = app, isPinnedOnly = true))
+                }
+            }
+        }
+
+        runningTasksAdapter.submitList(dockList)
     }
 
     private fun toggleStartMenu(forceState: Boolean? = null) {
-        val shouldOpen = forceState ?: (startMenuCard.visibility != View.VISIBLE)
+        val shouldOpen = forceState ?: (startMenuScrim.visibility != View.VISIBLE)
         if (shouldOpen) {
+            startMenuScrim.visibility = View.VISIBLE
             startMenuCard.visibility = View.VISIBLE
             searchAppsInput.text.clear()
             searchAppsInput.requestFocus()
         } else {
+            startMenuScrim.visibility = View.GONE
             startMenuCard.visibility = View.GONE
             searchAppsInput.clearFocus()
         }
@@ -1036,6 +1083,9 @@ class MainActivity : AppCompatActivity() {
         val nextIdx = (virtualDesktopManager.activeIndex + 1) % desktops.size
         val d = virtualDesktopManager.switchDesktop(nextIdx)
         renderVirtualDesktops()
+        if (::workspaceBadgeText.isInitialized) {
+            workspaceBadgeText.text = "● ${d.name}"
+        }
         Toast.makeText(this, "Workspace: ${d.name}", Toast.LENGTH_SHORT).show()
     }
 
@@ -1044,6 +1094,9 @@ class MainActivity : AppCompatActivity() {
         val prevIdx = if (virtualDesktopManager.activeIndex > 0) virtualDesktopManager.activeIndex - 1 else desktops.size - 1
         val d = virtualDesktopManager.switchDesktop(prevIdx)
         renderVirtualDesktops()
+        if (::workspaceBadgeText.isInitialized) {
+            workspaceBadgeText.text = "● ${d.name}"
+        }
         Toast.makeText(this, "Workspace: ${d.name}", Toast.LENGTH_SHORT).show()
     }
 
@@ -1125,7 +1178,7 @@ class MainActivity : AppCompatActivity() {
             toggleTaskView(false)
         } else if (controlCenterCard.visibility == View.VISIBLE) {
             toggleControlCenter(false)
-        } else if (startMenuCard.visibility == View.VISIBLE) {
+        } else if (startMenuScrim.visibility == View.VISIBLE || startMenuCard.visibility == View.VISIBLE) {
             toggleStartMenu(false)
         } else {
             val nonMinimized = activeTasks.filter { !it.isMinimized }

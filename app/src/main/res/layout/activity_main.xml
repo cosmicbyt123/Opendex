@@ -13,120 +13,285 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="centerCrop"
+        android:src="@drawable/wallpaper_cosmic_sequoia"
         android:contentDescription="Wallpaper" />
 
-    <!-- Clean Empty Desktop Canvas (No Left Icons Clutter) -->
+    <!-- Clean Empty Desktop Canvas (Preserved for compatibility) -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/desktopIconGrid"
-        android:layout_width="100dp"
+        android:layout_width="0dp"
         android:layout_height="0dp"
         android:visibility="gone"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/taskbar"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <!-- macOS-Style Centered Spotlight Search & Launchpad Overlay -->
-    <androidx.cardview.widget.CardView
-        android:id="@+id/startMenuCard"
-        android:layout_width="660dp"
-        android:layout_height="500dp"
-        android:visibility="gone"
-        app:cardCornerRadius="24dp"
-        app:cardElevation="32dp"
-        app:cardBackgroundColor="#F2101626"
+    <!-- macOS-Style Top Menu Bar -->
+    <LinearLayout
+        android:id="@+id/topMenuBar"
+        android:layout_width="match_parent"
+        android:layout_height="32dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="@drawable/bg_top_menu_bar"
+        android:elevation="12dp"
+        android:paddingStart="12dp"
+        android:paddingEnd="14dp"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/taskbar"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
+        <!-- OpenDeX Logo -->
+        <ImageView
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:src="@drawable/ic_opendex_logo"
+            android:contentDescription="OpenDeX" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="OpenDeX"
+            android:textColor="#FFFFFF"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:layout_marginStart="8dp" />
+
+        <!-- Active Workspace Pill -->
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:padding="20dp">
+            android:id="@+id/workspaceBadgePill"
+            android:layout_width="wrap_content"
+            android:layout_height="22dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@drawable/bg_space_pill"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:layout_marginStart="10dp"
+            android:clickable="true"
+            android:focusable="true">
 
-            <!-- macOS Spotlight Search Pill -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:background="@drawable/bg_search_input"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"
-                android:layout_marginBottom="14dp">
-
-                <ImageView
-                    android:layout_width="22dp"
-                    android:layout_height="22dp"
-                    android:src="@android:drawable/ic_menu_search"
-                    app:tint="@color/dex_accent_cyan"
-                    android:contentDescription="Search" />
-
-                <EditText
-                    android:id="@+id/searchAppsInput"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@null"
-                    android:hint="Spotlight Search (Search apps, settings, web...)"
-                    android:textColorHint="@color/dex_text_secondary"
-                    android:textColor="@color/dex_text_primary"
-                    android:paddingStart="12dp"
-                    android:paddingEnd="12dp"
-                    android:textSize="15sp"
-                    android:singleLine="true"
-                    android:imeOptions="actionSearch" />
-            </LinearLayout>
-
-            <!-- Launchpad 5-Column Grid -->
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/startMenuAppGrid"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:clipToPadding="false" />
-
-            <!-- Launchpad Footer -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="38dp"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:paddingTop="6dp">
-
-                <TextView
-                    android:id="@+id/allAppsCountText"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Installed Apps"
-                    android:textColor="@color/dex_text_secondary"
-                    android:textSize="12sp" />
-
-                <ImageView
-                    android:id="@+id/desktopSettingsBtn"
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
-                    android:padding="4dp"
-                    android:src="@android:drawable/ic_menu_preferences"
-                    android:contentDescription="Settings"
-                    app:tint="@color/dex_text_secondary" />
-            </LinearLayout>
+            <TextView
+                android:id="@+id/workspaceBadgeText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="● Space 1"
+                android:textColor="@color/dex_accent_cyan"
+                android:textSize="11sp"
+                android:textStyle="bold" />
         </LinearLayout>
-    </androidx.cardview.widget.CardView>
 
-    <!-- Tablet Quick Settings Control Center (Pop-up above System Tray) -->
+        <!-- Navigation Back Button -->
+        <FrameLayout
+            android:id="@+id/navBackButton"
+            android:layout_width="26dp"
+            android:layout_height="22dp"
+            android:layout_marginStart="6dp"
+            android:background="@drawable/bg_space_pill"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_nav_back"
+                app:tint="@color/dex_text_primary"
+                android:contentDescription="Back" />
+        </FrameLayout>
+
+        <!-- Menu Bar Spacer -->
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
+
+        <!-- Top Right System Tray -->
+        <LinearLayout
+            android:id="@+id/systemTray"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <!-- Wi-Fi Status Icon -->
+            <ImageView
+                android:id="@+id/trayWifiIcon"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_marginEnd="10dp"
+                android:src="@drawable/ic_wifi"
+                app:tint="@color/dex_accent_cyan"
+                android:contentDescription="Wi-Fi Status"
+                android:clickable="true"
+                android:focusable="true" />
+
+            <!-- Volume / Audio Icon -->
+            <ImageView
+                android:id="@+id/trayVolumeIcon"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_marginEnd="10dp"
+                android:src="@drawable/ic_volume"
+                app:tint="@color/dex_accent_cyan"
+                android:contentDescription="Volume Status"
+                android:clickable="true"
+                android:focusable="true" />
+
+            <!-- Virtual Keyboard Toggle Button -->
+            <ImageView
+                android:id="@+id/trayKeyboardBtn"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_marginEnd="10dp"
+                android:src="@drawable/ic_keyboard"
+                app:tint="@color/dex_accent_cyan"
+                android:contentDescription="Virtual Keyboard"
+                android:clickable="true"
+                android:focusable="true" />
+
+            <!-- External Display Indicator -->
+            <ImageView
+                android:id="@+id/trayDisplayIcon"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_marginEnd="10dp"
+                android:src="@drawable/ic_display_connected"
+                android:visibility="gone"
+                android:contentDescription="External Display"
+                android:clickable="true"
+                android:focusable="true" />
+
+            <!-- Battery Status -->
+            <TextView
+                android:id="@+id/trayBatteryText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="100%"
+                android:textColor="@color/dex_text_primary"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:layout_marginEnd="10dp" />
+
+            <!-- Live Clock -->
+            <TextClock
+                android:id="@+id/trayClock"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:format12Hour="h:mm a"
+                android:format24Hour="HH:mm"
+                android:textColor="@color/dex_text_primary"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Centered macOS Spotlight Search & Launchpad Overlay Scrim -->
+    <FrameLayout
+        android:id="@+id/startMenuScrim"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#66000000"
+        android:visibility="gone"
+        android:elevation="36dp">
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/startMenuCard"
+            android:layout_width="660dp"
+            android:layout_height="500dp"
+            android:layout_gravity="center"
+            app:cardCornerRadius="24dp"
+            app:cardElevation="36dp"
+            app:cardBackgroundColor="#F20B1120">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <!-- macOS Spotlight Search Pill -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="@drawable/bg_search_input"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:layout_marginBottom="14dp">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@android:drawable/ic_menu_search"
+                        app:tint="@color/dex_accent_cyan"
+                        android:contentDescription="Search" />
+
+                    <EditText
+                        android:id="@+id/searchAppsInput"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@null"
+                        android:hint="Spotlight Search (Search apps, settings, web...)"
+                        android:textColorHint="@color/dex_text_secondary"
+                        android:textColor="@color/dex_text_primary"
+                        android:paddingStart="12dp"
+                        android:paddingEnd="12dp"
+                        android:textSize="15sp"
+                        android:singleLine="true"
+                        android:imeOptions="actionSearch" />
+                </LinearLayout>
+
+                <!-- Launchpad 5-Column Grid -->
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/startMenuAppGrid"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:clipToPadding="false" />
+
+                <!-- Launchpad Footer -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="36dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingTop="4dp">
+
+                    <TextView
+                        android:id="@+id/allAppsCountText"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Installed Apps"
+                        android:textColor="@color/dex_text_secondary"
+                        android:textSize="12sp" />
+
+                    <ImageView
+                        android:id="@+id/desktopSettingsBtn"
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:padding="4dp"
+                        android:src="@android:drawable/ic_menu_preferences"
+                        android:contentDescription="Settings"
+                        app:tint="@color/dex_text_secondary" />
+                </LinearLayout>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+    </FrameLayout>
+
+    <!-- Tablet Quick Settings Control Center (Drops from Top Menu Bar) -->
     <androidx.cardview.widget.CardView
         android:id="@+id/controlCenterCard"
         android:layout_width="340dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="12dp"
+        android:layout_marginTop="6dp"
         android:visibility="gone"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="24dp"
-        app:cardBackgroundColor="@color/dex_surface_dark"
-        app:layout_constraintBottom_toTopOf="@id/taskbar"
+        app:cardCornerRadius="18dp"
+        app:cardElevation="28dp"
+        app:cardBackgroundColor="#F20D1322"
+        app:layout_constraintTop_toBottomOf="@id/topMenuBar"
         app:layout_constraintEnd_toEndOf="parent">
 
         <LinearLayout
@@ -155,43 +320,44 @@
 
                 <ImageView
                     android:id="@+id/ccSettingsBtn"
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
-                    android:padding="4dp"
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:padding="3dp"
                     android:src="@android:drawable/ic_menu_preferences"
+                    android:contentDescription="Settings"
                     app:tint="@color/dex_text_secondary"
-                    android:contentDescription="Settings" />
+                    android:clickable="true"
+                    android:focusable="true" />
             </LinearLayout>
 
-            <!-- Quick Toggle Pills (2x2 Grid) -->
-            <GridLayout
+            <!-- 2x2 Quick Toggle Grid -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:columnCount="2"
-                android:rowCount="2"
-                android:layout_marginBottom="16dp">
+                android:orientation="horizontal"
+                android:layout_marginBottom="8dp">
 
-                <!-- Wi-Fi Pill -->
+                <!-- Wi-Fi Toggle -->
                 <LinearLayout
                     android:id="@+id/pillWifi"
                     android:layout_width="0dp"
-                    android:layout_height="48dp"
-                    android:layout_columnWeight="1"
-                    android:layout_marginEnd="6dp"
-                    android:layout_marginBottom="8dp"
-                    android:orientation="horizontal"
+                    android:layout_height="44dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="4dp"
+                    android:background="@drawable/bg_control_pill"
                     android:gravity="center_vertical"
+                    android:orientation="horizontal"
                     android:paddingStart="12dp"
                     android:paddingEnd="12dp"
-                    android:background="@drawable/bg_control_pill"
                     android:clickable="true"
                     android:focusable="true">
 
                     <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
                         android:src="@drawable/ic_wifi"
-                        app:tint="@color/dex_accent_cyan" />
+                        app:tint="@color/dex_accent_cyan"
+                        android:contentDescription="Wi-Fi" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -203,27 +369,27 @@
                         android:textStyle="bold" />
                 </LinearLayout>
 
-                <!-- Bluetooth Pill -->
+                <!-- Bluetooth Toggle -->
                 <LinearLayout
                     android:id="@+id/pillBluetooth"
                     android:layout_width="0dp"
-                    android:layout_height="48dp"
-                    android:layout_columnWeight="1"
-                    android:layout_marginStart="6dp"
-                    android:layout_marginBottom="8dp"
-                    android:orientation="horizontal"
+                    android:layout_height="44dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="4dp"
+                    android:background="@drawable/bg_control_pill"
                     android:gravity="center_vertical"
+                    android:orientation="horizontal"
                     android:paddingStart="12dp"
                     android:paddingEnd="12dp"
-                    android:background="@drawable/bg_control_pill"
                     android:clickable="true"
                     android:focusable="true">
 
                     <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
                         android:src="@drawable/ic_bluetooth"
-                        app:tint="@color/dex_accent_cyan" />
+                        app:tint="@color/dex_accent_cyan"
+                        android:contentDescription="Bluetooth" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -234,27 +400,35 @@
                         android:textSize="12sp"
                         android:textStyle="bold" />
                 </LinearLayout>
+            </LinearLayout>
 
-                <!-- Rotation Pill -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="14dp">
+
+                <!-- Auto-Rotate -->
                 <LinearLayout
                     android:id="@+id/pillRotation"
                     android:layout_width="0dp"
-                    android:layout_height="48dp"
-                    android:layout_columnWeight="1"
-                    android:layout_marginEnd="6dp"
-                    android:orientation="horizontal"
+                    android:layout_height="44dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="4dp"
+                    android:background="@drawable/bg_control_pill"
                     android:gravity="center_vertical"
+                    android:orientation="horizontal"
                     android:paddingStart="12dp"
                     android:paddingEnd="12dp"
-                    android:background="@drawable/bg_control_pill"
                     android:clickable="true"
                     android:focusable="true">
 
                     <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
                         android:src="@drawable/ic_rotation"
-                        app:tint="@color/dex_accent_cyan" />
+                        app:tint="@color/dex_accent_cyan"
+                        android:contentDescription="Rotation" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -266,26 +440,27 @@
                         android:textStyle="bold" />
                 </LinearLayout>
 
-                <!-- Display Settings Pill -->
+                <!-- Displays / External Display Routing -->
                 <LinearLayout
                     android:id="@+id/pillDisplay"
                     android:layout_width="0dp"
-                    android:layout_height="48dp"
-                    android:layout_columnWeight="1"
-                    android:layout_marginStart="6dp"
-                    android:orientation="horizontal"
+                    android:layout_height="44dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="4dp"
+                    android:background="@drawable/bg_control_pill"
                     android:gravity="center_vertical"
+                    android:orientation="horizontal"
                     android:paddingStart="12dp"
                     android:paddingEnd="12dp"
-                    android:background="@drawable/bg_control_pill"
                     android:clickable="true"
                     android:focusable="true">
 
                     <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
                         android:src="@drawable/ic_display_connected"
-                        app:tint="@color/dex_accent_cyan" />
+                        app:tint="@color/dex_accent_cyan"
+                        android:contentDescription="Displays" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -296,63 +471,65 @@
                         android:textSize="12sp"
                         android:textStyle="bold" />
                 </LinearLayout>
-            </GridLayout>
+            </LinearLayout>
 
             <!-- Brightness Slider -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
                 android:gravity="center_vertical"
+                android:orientation="horizontal"
                 android:layout_marginBottom="12dp">
 
                 <ImageView
-                    android:layout_width="22dp"
-                    android:layout_height="22dp"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
                     android:src="@drawable/ic_brightness"
-                    app:tint="@color/dex_accent_cyan" />
+                    app:tint="@color/dex_accent_cyan"
+                    android:contentDescription="Brightness" />
 
                 <SeekBar
                     android:id="@+id/brightnessSeekBar"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:max="100"
-                    android:progress="70"
+                    android:progress="85"
                     android:progressTint="@color/dex_accent_cyan"
                     android:thumbTint="@color/dex_accent_cyan" />
             </LinearLayout>
 
-            <!-- Volume Slider -->
+            <!-- Media Volume Slider -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:layout_marginBottom="12dp">
+                android:orientation="horizontal"
+                android:layout_marginBottom="14dp">
 
                 <ImageView
-                    android:layout_width="22dp"
-                    android:layout_height="22dp"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
                     android:src="@drawable/ic_volume"
-                    app:tint="@color/dex_accent_blue" />
+                    app:tint="@color/dex_accent_cyan"
+                    android:contentDescription="Volume" />
 
                 <SeekBar
                     android:id="@+id/volumeSeekBar"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:max="100"
-                    android:progress="50"
-                    android:progressTint="@color/dex_accent_blue"
-                    android:thumbTint="@color/dex_accent_blue" />
+                    android:max="15"
+                    android:progress="10"
+                    android:progressTint="@color/dex_accent_cyan"
+                    android:thumbTint="@color/dex_accent_cyan" />
             </LinearLayout>
 
-            <!-- Footer / Power -->
+            <!-- Control Center Footer -->
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="36dp"
+                android:layout_height="32dp"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:paddingTop="4dp">
+                android:paddingTop="2dp">
 
                 <TextView
                     android:id="@+id/ccBatteryPercent"
@@ -365,9 +542,9 @@
 
                 <ImageView
                     android:id="@+id/ccPowerBtn"
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
-                    android:padding="4dp"
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:padding="3dp"
                     android:src="@drawable/ic_power"
                     android:contentDescription="Power"
                     android:clickable="true"
@@ -376,17 +553,17 @@
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
-    <!-- macOS Mission Control Style Workspaces Bar (Centered Above Dock) -->
+    <!-- macOS Mission Control Workspaces Bar (Drops from Top Menu Bar) -->
     <androidx.cardview.widget.CardView
         android:id="@+id/taskViewCard"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="12dp"
+        android:layout_marginTop="8dp"
         android:visibility="gone"
-        app:cardCornerRadius="22dp"
-        app:cardElevation="32dp"
-        app:cardBackgroundColor="#F2101626"
-        app:layout_constraintBottom_toTopOf="@id/taskbar"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="28dp"
+        app:cardBackgroundColor="#F20D1322"
+        app:layout_constraintTop_toBottomOf="@id/topMenuBar"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
@@ -394,16 +571,16 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="14dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Workspaces (Mission Control)"
                 android:textColor="@color/dex_text_primary"
-                android:textSize="13sp"
+                android:textSize="12sp"
                 android:textStyle="bold"
-                android:layout_marginBottom="12dp" />
+                android:layout_marginBottom="10dp" />
 
             <!-- Desktops Row -->
             <LinearLayout
@@ -415,29 +592,27 @@
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
-    <!-- Bottom Floating Dock -->
+    <!-- Centered macOS Floating Dock -->
     <LinearLayout
         android:id="@+id/taskbar"
-        android:layout_width="match_parent"
-        android:layout_height="54dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="12dp"
-        android:elevation="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="58dp"
+        android:layout_marginBottom="14dp"
+        android:elevation="24dp"
         android:orientation="horizontal"
         android:gravity="center_vertical"
         android:background="@drawable/bg_floating_dock"
         android:paddingStart="10dp"
-        android:paddingEnd="14dp"
+        android:paddingEnd="10dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Start Menu / Spotlight Button -->
+        <!-- Launchpad / Spotlight Button -->
         <FrameLayout
             android:id="@+id/startMenuButton"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="42dp"
+            android:layout_height="42dp"
             android:background="@drawable/bg_taskbar_btn"
             android:clickable="true"
             android:focusable="true">
@@ -448,34 +623,37 @@
                 android:layout_gravity="center"
                 android:src="@android:drawable/ic_dialog_dialer"
                 app:tint="@color/dex_accent_cyan"
-                android:contentDescription="Spotlight Launchpad" />
+                android:contentDescription="Launchpad" />
         </FrameLayout>
 
-        <!-- Navigation Back Button -->
-        <FrameLayout
-            android:id="@+id/navBackButton"
-            android:layout_width="38dp"
-            android:layout_height="38dp"
-            android:layout_marginStart="4dp"
-            android:background="@drawable/bg_taskbar_btn"
-            android:clickable="true"
-            android:focusable="true">
+        <!-- Subtle Dock Divider -->
+        <View
+            android:layout_width="1dp"
+            android:layout_height="26dp"
+            android:background="#2EFFFFFF"
+            android:layout_marginStart="6dp"
+            android:layout_marginEnd="6dp" />
 
-            <ImageView
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:layout_gravity="center"
-                android:src="@drawable/ic_nav_back"
-                app:tint="@color/dex_text_primary"
-                android:contentDescription="Back" />
-        </FrameLayout>
+        <!-- Running / Pinned Dock Tasks List -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/runningTasksList"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="horizontal" />
 
-        <!-- Task View / Virtual Desktops Button -->
+        <!-- Subtle Dock Divider -->
+        <View
+            android:layout_width="1dp"
+            android:layout_height="26dp"
+            android:background="#2EFFFFFF"
+            android:layout_marginStart="6dp"
+            android:layout_marginEnd="6dp" />
+
+        <!-- Virtual Desktops / Spaces Button -->
         <FrameLayout
             android:id="@+id/taskViewButton"
-            android:layout_width="38dp"
-            android:layout_height="38dp"
-            android:layout_marginStart="4dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:background="@drawable/bg_taskbar_btn"
             android:clickable="true"
             android:focusable="true">
@@ -488,97 +666,6 @@
                 app:tint="@color/dex_accent_cyan"
                 android:contentDescription="Virtual Desktops" />
         </FrameLayout>
-
-        <!-- Running Task Bar -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/runningTasksList"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
-            android:orientation="horizontal" />
-
-        <!-- System Tray Quick Settings -->
-        <LinearLayout
-            android:id="@+id/systemTray"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:paddingStart="6dp"
-            android:paddingEnd="6dp">
-
-            <!-- Wi-Fi Status Icon -->
-            <ImageView
-                android:id="@+id/trayWifiIcon"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:layout_marginEnd="10dp"
-                android:src="@drawable/ic_wifi"
-                app:tint="@color/dex_accent_cyan"
-                android:contentDescription="Wi-Fi Status"
-                android:clickable="true"
-                android:focusable="true" />
-
-            <!-- Volume / Audio Icon -->
-            <ImageView
-                android:id="@+id/trayVolumeIcon"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:layout_marginEnd="10dp"
-                android:src="@drawable/ic_volume"
-                app:tint="@color/dex_accent_cyan"
-                android:contentDescription="Volume Status"
-                android:clickable="true"
-                android:focusable="true" />
-
-            <!-- Virtual Keyboard Toggle Button -->
-            <ImageView
-                android:id="@+id/trayKeyboardBtn"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:layout_marginEnd="10dp"
-                android:src="@drawable/ic_keyboard"
-                app:tint="@color/dex_accent_cyan"
-                android:contentDescription="Virtual Keyboard"
-                android:clickable="true"
-                android:focusable="true" />
-
-            <!-- External Display Indicator (Hidden by default unless multi-monitor) -->
-            <ImageView
-                android:id="@+id/trayDisplayIcon"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:layout_marginEnd="10dp"
-                android:src="@drawable/ic_display_connected"
-                android:visibility="gone"
-                android:contentDescription="External Display"
-                android:clickable="true"
-                android:focusable="true" />
-
-            <!-- Battery Status -->
-            <TextView
-                android:id="@+id/trayBatteryText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="100%"
-                android:textColor="@color/dex_text_primary"
-                android:textSize="12sp"
-                android:textStyle="bold"
-                android:layout_marginEnd="10dp" />
-
-            <!-- Live Clock -->
-            <TextClock
-                android:id="@+id/trayClock"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:format12Hour="h:mm a"
-                android:format24Hour="HH:mm"
-                android:textColor="@color/dex_text_primary"
-                android:textSize="13sp"
-                android:textStyle="bold" />
-        </LinearLayout>
     </LinearLayout>
 
     <!-- Software Brightness Dimmer Overlay (dims display on laptop, monitor, or phone) -->

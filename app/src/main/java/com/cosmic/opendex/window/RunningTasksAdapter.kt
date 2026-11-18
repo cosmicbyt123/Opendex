@@ -30,12 +30,14 @@ class RunningTasksAdapter(
         private val iconView: ImageView = itemView.findViewById(R.id.runningTaskIcon)
         private val labelView: TextView = itemView.findViewById(R.id.runningTaskLabel)
         private val closeBtn: ImageView = itemView.findViewById(R.id.runningTaskCloseBtn)
+        private val indicator: View? = itemView.findViewById(R.id.runningTaskIndicator)
 
         fun bind(task: ActiveTask) {
             iconView.setImageDrawable(task.app.icon)
             labelView.text = task.app.label
 
-            itemView.alpha = if (task.isMinimized) 0.6f else 1.0f
+            indicator?.visibility = if (!task.isPinnedOnly) View.VISIBLE else View.INVISIBLE
+            itemView.alpha = if (!task.isPinnedOnly && task.isMinimized) 0.65f else 1.0f
 
             itemView.setOnClickListener {
                 onTaskClick(task)
@@ -64,13 +66,14 @@ class RunningTasksAdapter(
 
     private class TaskDiffCallback : DiffUtil.ItemCallback<ActiveTask>() {
         override fun areItemsTheSame(oldItem: ActiveTask, newItem: ActiveTask): Boolean {
-            return oldItem.id == newItem.id
+            return oldItem.id == newItem.id && oldItem.isPinnedOnly == newItem.isPinnedOnly
         }
 
         override fun areContentsTheSame(oldItem: ActiveTask, newItem: ActiveTask): Boolean {
             return oldItem.bounds == newItem.bounds &&
                     oldItem.isMinimized == newItem.isMinimized &&
                     oldItem.isMaximized == newItem.isMaximized &&
+                    oldItem.isPinnedOnly == newItem.isPinnedOnly &&
                     oldItem.snapPosition == newItem.snapPosition
         }
     }

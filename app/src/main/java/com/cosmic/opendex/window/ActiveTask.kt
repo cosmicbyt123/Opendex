@@ -8,10 +8,11 @@ import com.cosmic.opendex.data.AppModel
  */
 data class ActiveTask(
     val app: AppModel,
-    var bounds: Rect,
+    var bounds: Rect = Rect(),
     var snapPosition: SnapPosition = SnapPosition.NONE,
     var isMinimized: Boolean = false,
     var isMaximized: Boolean = false,
+    var isPinnedOnly: Boolean = false,
     var lastRestoredBounds: Rect? = null,
     var lastActiveTime: Long = System.currentTimeMillis()
 ) {

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Deep obsidian night base -->
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:type="linear"
+                android:angle="135"
+                android:startColor="#030712"
+                android:centerColor="#0B132B"
+                android:endColor="#02040A" />
+        </shape>
+    </item>
+
+    <!-- Vast Ambient Cyan & Teal Nebula Bloom -->
+    <item
+        android:top="60dp"
+        android:bottom="80dp"
+        android:left="80dp"
+        android:right="200dp">
+        <shape android:shape="oval">
+            <gradient
+                android:type="radial"
+                android:gradientRadius="650dp"
+                android:startColor="#4D00E5FF"
+                android:centerColor="#260EA5E9"
+                android:endColor="#00000000" />
+        </shape>
+    </item>
+
+    <!-- Deep Royal Violet & Magenta Horizon Bloom -->
+    <item
+        android:top="160dp"
+        android:bottom="40dp"
+        android:left="350dp"
+        android:right="60dp">
+        <shape android:shape="oval">
+            <gradient
+                android:type="radial"
+                android:gradientRadius="550dp"
+                android:startColor="#408B5CF6"
+                android:centerColor="#206D28D9"
+                android:endColor="#00000000" />
+        </shape>
+    </item>
+
+    <!-- Ambient Center Star Glow -->
+    <item
+        android:top="220dp"
+        android:bottom="180dp"
+        android:left="450dp"
+        android:right="450dp">
+        <shape android:shape="oval">
+            <gradient
+                android:type="radial"
+                android:gradientRadius="280dp"
+                android:startColor="#3338BDF8"
+                android:endColor="#00000000" />
+        </shape>
+    </item>
+</layer-list>
