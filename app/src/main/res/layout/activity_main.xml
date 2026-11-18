@@ -493,6 +493,18 @@
             android:paddingStart="8dp"
             android:paddingEnd="8dp">
 
+            <!-- Virtual Keyboard Toggle Button -->
+            <ImageView
+                android:id="@+id/trayKeyboardBtn"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:layout_marginEnd="12dp"
+                android:src="@drawable/ic_keyboard"
+                app:tint="@color/dex_accent_cyan"
+                android:contentDescription="Virtual Keyboard"
+                android:clickable="true"
+                android:focusable="true" />
+
             <!-- External Display Indicator -->
             <ImageView
                 android:id="@+id/trayDisplayIcon"
@@ -528,5 +540,16 @@
                 android:textStyle="bold" />
         </LinearLayout>
     </LinearLayout>
+
+    <!-- Software Brightness Dimmer Overlay (dims display on laptop, monitor, or phone) -->
+    <View
+        android:id="@+id/brightnessDimmer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#000000"
+        android:alpha="0.0"
+        android:clickable="false"
+        android:focusable="false"
+        android:elevation="100dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -84,6 +84,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var allAppsCountText: TextView
     private lateinit var trayBatteryText: TextView
     private lateinit var trayDisplayIcon: ImageView
+    private lateinit var trayKeyboardBtn: ImageView
+    private lateinit var brightnessDimmer: View
     private lateinit var taskbar: LinearLayout
     private lateinit var systemTray: LinearLayout
     private lateinit var runningTasksList: RecyclerView
@@ -184,6 +186,8 @@ class MainActivity : AppCompatActivity() {
         allAppsCountText = findViewById(R.id.allAppsCountText)
         trayBatteryText = findViewById(R.id.trayBatteryText)
         trayDisplayIcon = findViewById(R.id.trayDisplayIcon)
+        trayKeyboardBtn = findViewById(R.id.trayKeyboardBtn)
+        brightnessDimmer = findViewById(R.id.brightnessDimmer)
         taskbar = findViewById(R.id.taskbar)
         systemTray = findViewById(R.id.systemTray)
         runningTasksList = findViewById(R.id.runningTasksList)
@@ -355,6 +359,11 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
+        trayKeyboardBtn.setOnClickListener {
+            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
+            imm.toggleSoftInput(android.view.inputmethod.InputMethodManager.SHOW_FORCED, 0)
+        }
+
         findViewById<View>(R.id.desktopSettingsBtn).setOnClickListener {
             showDesktopSettingsDialog()
         }
@@ -386,9 +395,14 @@ class MainActivity : AppCompatActivity() {
         brightnessSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 if (fromUser) {
+                    // 1. Hardware screen brightness
                     val lp = window.attributes
                     lp.screenBrightness = (progress / 100f).coerceIn(0.05f, 1.0f)
                     window.attributes = lp
+
+                    // 2. Software Dimmer for Laptop screen / External monitor / TV!
+                    val dimAlpha = ((100 - progress) / 100f * 0.75f).coerceIn(0f, 0.75f)
+                    brightnessDimmer.alpha = dimAlpha
                 }
             }
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
