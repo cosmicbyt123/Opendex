@@ -2,11 +2,13 @@ package com.cosmic.opendex.display
 
 import android.content.Context
 import android.hardware.display.DisplayManager
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.Display
+import android.view.WindowManager
 
 /**
  * Monitors physical and virtual display connections using AOSP DisplayManager.DisplayListener.
@@ -24,6 +26,33 @@ class DisplayDetectionManager(
 
     var activeTargetDisplayId: Int = Display.DEFAULT_DISPLAY
         private set
+
+    init {
+        // Automatically adopt the activity's current display if it's already on a secondary display
+        val currentDisplay = try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                context.display?.displayId ?: Display.DEFAULT_DISPLAY
+            } else {
+                @Suppress("DEPRECATION")
+                (context.getSystemService(Context.WINDOW_SERVICE) as WindowManager).defaultDisplay.displayId
+            }
+        } catch (e: Exception) {
+            Display.DEFAULT_DISPLAY
+        }
+
+        if (currentDisplay != Display.DEFAULT_DISPLAY) {
+            activeTargetDisplayId = currentDisplay
+            Log.i(TAG, "Initialized activeTargetDisplayId to Activity's current display: $currentDisplay")
+        } else {
+            // Check if there are already secondary displays connected
+            val displays = displayManager.displays
+            val secondary = displays.firstOrNull { it.displayId != Display.DEFAULT_DISPLAY }
+            if (secondary != null) {
+                activeTargetDisplayId = secondary.displayId
+                Log.i(TAG, "Found pre-existing secondary display: ${secondary.displayId} (${secondary.name})")
+            }
+        }
+    }
 
     private val displayListener = object : DisplayManager.DisplayListener {
         override fun onDisplayAdded(displayId: Int) {
