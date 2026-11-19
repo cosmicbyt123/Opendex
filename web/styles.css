@@ -334,8 +334,10 @@ header {
 
 .gallery-card img {
   width: 100%;
-  height: 190px;
-  object-fit: cover;
+  height: auto;
+  aspect-ratio: 16 / 10;
+  object-fit: contain;
+  background: #060911;
   display: block;
 }
 
