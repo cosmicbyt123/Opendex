@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenDeX — Universal Open-Source Android Desktop Environment</title>
+  <meta name="description" content="Turn any Android phone into a high-performance desktop workstation with resizable floating windows, virtual workspaces, and persistent overlay taskbar.">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <header>
+    <div class="container nav-wrapper">
+      <a href="#" class="logo-group">
+        <div class="logo-icon">🌌</div>
+        <span class="logo-text">OpenDeX</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="#features">Features</a></li>
+        <li><a href="#showcase">Gallery</a></li>
+        <li><a href="#architecture">Architecture</a></li>
+        <li><a href="#quickstart">Quick Start</a></li>
+        <li><a href="https://github.com/cosmicbyt123/Opendex" target="_blank" class="btn-nav">GitHub</a></li>
+      </ul>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <main>
+    <section class="hero-section">
+      <div class="container">
+        <div class="badge-pill">
+          <span class="badge-dot"></span>
+          <span>v1.2.0 • AOSP Native Desktop Mode</span>
+        </div>
+        <h1 class="hero-title">Turn Any Android Phone Into a Real Desktop Workstation.</h1>
+        <p class="hero-subtitle">
+          Multi-window floating apps, virtual desktop spaces, persistent overlay taskbar, and zero vendor lock-in. Powered natively by AOSP Windowing Mode 5 without Knox or root.
+        </p>
+        <div class="hero-cta">
+          <a href="https://github.com/cosmicbyt123/Opendex/releases" class="btn-primary">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
+            Download Latest APK
+          </a>
+          <a href="https://github.com/cosmicbyt123/Opendex" target="_blank" class="btn-secondary">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+            Star on GitHub
+          </a>
+        </div>
+
+        <!-- Hero Showcase Video Player -->
+        <div class="showcase-wrapper">
+          <div class="showcase-screen">
+            <video controls poster="brag.jpg" style="width: 100%; height: auto; display: block; border-radius: 10px;">
+              <source src="brag.mp4" type="video/mp4">
+              Your browser does not support the video tag.
+            </video>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Core Features Grid -->
+    <section class="section" id="features">
+      <div class="container">
+        <div class="section-header">
+          <div class="section-tag">Desktop Power</div>
+          <h2 class="section-title">Built for Real Multitasking</h2>
+        </div>
+        <div class="features-grid">
+          
+          <div class="feature-card">
+            <div class="feature-icon-badge">🪟</div>
+            <h3 class="feature-title">AOSP Freeform Multi-Window</h3>
+            <p class="feature-desc">
+              Launch applications into true floating, resizable windows. Run multiple desktop apps side-by-side with 50/50 split snapping, 4-corner tiling, and smooth window controls.
+            </p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon-badge">🌌</div>
+            <h3 class="feature-title">Virtual Desktops (Spaces)</h3>
+            <p class="feature-desc">
+              Organize workflows across dedicated workspaces (Desktop 1, 2, 3...). Switch smoothly with 1-finger horizontal wallpaper swipes or 3-finger trackpad gestures.
+            </p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon-badge">⚡</div>
+            <h3 class="feature-title">Persistent Overlay Taskbar</h3>
+            <p class="feature-desc">
+              Never get locked out by full-screen apps. The floating taskbar binds to external monitors via isolated display contexts, keeping Back navigation and Start Menu accessible.
+            </p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon-badge">🔲</div>
+            <h3 class="feature-title">Squircle Icon Normalization</h3>
+            <p class="feature-desc">
+              Third-party Android apps with opaque white squares are normalized inside standardized frosted-glass squircle frames (38dp, 11dp curvature) for a unified aesthetic.
+            </p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon-badge">🔔</div>
+            <h3 class="feature-title">Notifications &amp; Phone Calls</h3>
+            <p class="feature-desc">
+              Integrated 1-tap Notification Center button pulls down the native notification shade. Incoming calls trigger high-priority desktop heads-up alerts to answer directly from your monitor.
+            </p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon-badge">🎨</div>
+            <h3 class="feature-title">Deep Space Wallpapers</h3>
+            <p class="feature-desc">
+              Ships with procedural presets including Celestial Hyper Space, Cosmic Sequoia, Azure Bloom, and Aurora Borealis, plus instant custom wallpaper imports from your photo gallery.
+            </p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- Visual Showcase Gallery -->
+    <section class="section" id="showcase">
+      <div class="container">
+        <div class="section-header">
+          <div class="section-tag">Interface Showcase</div>
+          <h2 class="section-title">Designed for Large Displays</h2>
+        </div>
+        <div class="gallery-grid">
+          <div class="gallery-card">
+            <img src="screenshots/window_multitasking.png" alt="Window Multitasking">
+            <div class="gallery-info">
+              <div class="gallery-title">Floating Window Multitasking</div>
+              <div class="gallery-subtitle">True floating canvas with centered geometry</div>
+            </div>
+          </div>
+
+          <div class="gallery-card">
+            <img src="screenshots/task_view_workspaces.png" alt="Task View with Active Windows">
+            <div class="gallery-info">
+              <div class="gallery-title">Task View &amp; Window Cards</div>
+              <div class="gallery-subtitle">1-tap close buttons &amp; workspace switcher</div>
+            </div>
+          </div>
+
+          <div class="gallery-card">
+            <img src="screenshots/control_center.png" alt="DeX Quick Control Center">
+            <div class="gallery-info">
+              <div class="gallery-title">Quick Settings &amp; Control Center</div>
+              <div class="gallery-subtitle">Volume, brightness dimmer, and displays</div>
+            </div>
+          </div>
+
+          <div class="gallery-card">
+            <img src="screenshots/app_launcher.png" alt="Full App Launcher">
+            <div class="gallery-info">
+              <div class="gallery-title">Full-Screen App Drawer</div>
+              <div class="gallery-subtitle">Live search and instant drag-and-drop pinning</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quick Start Terminal Section -->
+    <section class="section" id="quickstart">
+      <div class="container">
+        <div class="section-header">
+          <div class="section-tag">Getting Started</div>
+          <h2 class="section-title">One-Minute Setup</h2>
+        </div>
+        
+        <div class="terminal-box">
+          <div class="terminal-header">
+            <div class="terminal-dot dot-red"></div>
+            <div class="terminal-dot dot-yellow"></div>
+            <div class="terminal-dot dot-green"></div>
+          </div>
+          <div class="command-line">
+            <span class="prompt"># 1. Enable standard AOSP Freeform mode via ADB</span>
+          </div>
+          <div class="command-line">
+            <span class="prompt">$</span> adb shell settings put global enable_freeform_support 1
+          </div>
+          <div class="command-line">
+            <span class="prompt">$</span> adb shell settings put global force_resizable_activities 1
+          </div>
+          <div class="command-line" style="margin-top: 16px;">
+            <span class="prompt"># 2. Launch high-DPI virtual desktop on laptop with scrcpy</span>
+          </div>
+          <div class="command-line">
+            <span class="prompt">$</span> scrcpy --new-display=1920x1200/240 --window-title="OpenDeX Desktop" --stay-awake
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <p class="footer-text">OpenDeX is open-source software released under the <a href="https://opensource.org/licenses/MIT" target="_blank" style="color: var(--accent-cyan); text-decoration: none;">MIT License</a>.</p>
+      <p class="footer-disclaimer">
+        "DeX" in OpenDeX refers to "Desktop Experience". This independent open-source project is not affiliated with, endorsed by, or sponsored by Samsung Electronics Co., Ltd., Lenovo Group Limited, or Google LLC.
+      </p>
+    </div>
+  </footer>
+
+</body>
+</html>

@@ -1,0 +1,49 @@
+# Share Copy for OpenDeX Launch Video 🚀
+
+## Twitter / X / Threads
+Samsung sells DeX for $800+ tablets. 
+We just unlocked a full multi-window desktop workstation for EVERY Android phone. 🌌
+
+✨ AOSP Mode 5 Freeform Floating Windows (50/50 split snap)
+✨ Virtual Desktops with 1-finger & 3-finger slide gestures
+✨ Persistent Overlay Taskbar (never covers or closes)
+✨ Normalized Squircle Dock Icons
+✨ Zero Knox. Zero Root. 100% Open Source.
+
+Check out OpenDeX on GitHub:
+👉 https://github.com/cosmicbyt123/Opendex
+
+#Android #OpenSource #DeX #Linux #AndroidDev #Workstation
+
+---
+
+## LinkedIn
+Excited to share OpenDeX — a Knox-free, vendor-unlocked desktop workstation environment built natively on the Android Open Source Project (AOSP).
+
+While proprietary manufacturers lock desktop computing behind expensive hardware chips and custom ROMs, OpenDeX proves that modern smartphones already possess the desktop computing horsepower required for daily productivity.
+
+Key Engineering Highlights:
+- Direct AOSP Windowing Mode 5 integration for resizable floating windows.
+- Multi-display routing via isolated DisplayContexts to keep external monitors running independently from the phone screen.
+- Persistent overlay architecture ensuring navigation controls float over full-screen third-party applications.
+- Virtual workspaces with hardware-accelerated parallax slide transitions.
+
+The project is 100% open-source under the MIT license:
+https://github.com/cosmicbyt123/Opendex
+
+---
+
+## Reddit (r/androiddev, r/opensource, r/Android)
+Title: I built OpenDeX: A Knox-free, open-source Samsung DeX alternative using native AOSP Freeform mode
+
+Hey everyone! For years, desktop mode on Android was locked behind Samsung DeX or Motorola Ready For. Under the hood, Google already built a full PC windowing engine (WINDOWING_MODE_FREEFORM = 5) into AOSP, but kept it hidden.
+
+I built OpenDeX to turn any Android phone into a real desktop workstation:
+- True floating windows with Windows-style 50/50 split snapping
+- Virtual desktops with fluid slide animations
+- Persistent floating taskbar over full-screen apps
+- Standardized squircle dock icons
+- Runs on USB-C monitors or wirelessly via scrcpy
+
+Check out the code, launch video, and APK here:
+https://github.com/cosmicbyt123/Opendex
