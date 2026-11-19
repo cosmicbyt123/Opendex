@@ -56,9 +56,13 @@
         </div>
 
         <!-- Hero Showcase Frame -->
-        <div class="showcase-wrapper">
+        <div class="showcase-wrapper" data-lightbox-index="0" title="Click to view full screenshot">
           <div class="showcase-screen">
             <img src="screenshots/desktop_overview.png" alt="OpenDeX Desktop Overview with Living Clock and Squircle Dock" loading="eager">
+            <div class="expand-badge">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+              <span>Click to view full screenshot</span>
+            </div>
           </div>
         </div>
       </div>
@@ -171,32 +175,64 @@
           <h2 class="section-title">Designed for Large Displays</h2>
         </div>
         <div class="gallery-grid">
-          <div class="gallery-card">
-            <img src="screenshots/window_multitasking.png" alt="Window Multitasking">
+          <div class="gallery-card" data-lightbox-index="1" title="Click to view full screenshot">
+            <div class="gallery-thumb-wrap">
+              <img src="screenshots/window_multitasking.png" alt="Window Multitasking">
+              <div class="gallery-hover-overlay">
+                <div class="gallery-zoom-pill">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
+                  <span>Expand Screenshot</span>
+                </div>
+              </div>
+            </div>
             <div class="gallery-info">
               <div class="gallery-title">Floating Window Multitasking</div>
               <div class="gallery-subtitle">True floating canvas with centered geometry</div>
             </div>
           </div>
 
-          <div class="gallery-card">
-            <img src="screenshots/task_view_workspaces.png" alt="Task View with Active Windows">
+          <div class="gallery-card" data-lightbox-index="2" title="Click to view full screenshot">
+            <div class="gallery-thumb-wrap">
+              <img src="screenshots/task_view_workspaces.png" alt="Task View with Active Windows">
+              <div class="gallery-hover-overlay">
+                <div class="gallery-zoom-pill">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
+                  <span>Expand Screenshot</span>
+                </div>
+              </div>
+            </div>
             <div class="gallery-info">
               <div class="gallery-title">Task View &amp; Window Cards</div>
               <div class="gallery-subtitle">1-tap close buttons &amp; workspace switcher</div>
             </div>
           </div>
 
-          <div class="gallery-card">
-            <img src="screenshots/control_center.png" alt="DeX Quick Control Center">
+          <div class="gallery-card" data-lightbox-index="3" title="Click to view full screenshot">
+            <div class="gallery-thumb-wrap">
+              <img src="screenshots/control_center.png" alt="DeX Quick Control Center">
+              <div class="gallery-hover-overlay">
+                <div class="gallery-zoom-pill">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
+                  <span>Expand Screenshot</span>
+                </div>
+              </div>
+            </div>
             <div class="gallery-info">
               <div class="gallery-title">Quick Settings &amp; Control Center</div>
               <div class="gallery-subtitle">Volume, brightness dimmer, and displays</div>
             </div>
           </div>
 
-          <div class="gallery-card">
-            <img src="screenshots/app_launcher.png" alt="Full App Launcher">
+          <div class="gallery-card" data-lightbox-index="4" title="Click to view full screenshot">
+            <div class="gallery-thumb-wrap">
+              <img src="screenshots/app_launcher.png" alt="Full App Launcher">
+              <div class="gallery-hover-overlay">
+                <div class="gallery-zoom-pill">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
+                  <span>Expand Screenshot</span>
+                </div>
+              </div>
+            </div>
             <div class="gallery-info">
               <div class="gallery-title">Full-Screen App Drawer</div>
               <div class="gallery-subtitle">Live search and instant drag-and-drop pinning</div>
@@ -255,6 +291,160 @@
       </p>
     </div>
   </footer>
+
+  <!-- High-Resolution Screenshot Lightbox Modal -->
+  <div id="lightboxModal" class="lightbox-modal" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="lightbox-backdrop" id="lightboxBackdrop"></div>
+    
+    <div class="lightbox-container">
+      <div class="lightbox-header">
+        <div class="lightbox-meta">
+          <span class="lightbox-counter" id="lightboxCounter">1 / 5</span>
+          <div class="lightbox-title-wrap">
+            <h3 class="lightbox-title" id="lightboxTitle"></h3>
+            <p class="lightbox-desc" id="lightboxDesc"></p>
+          </div>
+        </div>
+        <div class="lightbox-actions">
+          <a id="lightboxFullRes" href="#" target="_blank" class="lightbox-btn" title="Open full resolution in new tab">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+            <span>Open Original</span>
+          </a>
+          <button id="lightboxClose" class="lightbox-btn lightbox-close-btn" aria-label="Close screenshot viewer" title="Close (Esc)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="lightbox-content">
+        <button id="lightboxPrev" class="lightbox-nav-btn lightbox-prev" aria-label="Previous screenshot" title="Previous (Left Arrow)">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        </button>
+
+        <div class="lightbox-image-wrap">
+          <img id="lightboxImage" src="" alt="OpenDeX High Resolution Screenshot">
+        </div>
+
+        <button id="lightboxNext" class="lightbox-nav-btn lightbox-next" aria-label="Next screenshot" title="Next (Right Arrow)">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </button>
+      </div>
+
+      <div class="lightbox-footer">
+        <div class="lightbox-thumbnails" id="lightboxThumbnails"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const screenshots = [
+        {
+          src: "screenshots/desktop_overview.png",
+          title: "Desktop Overview & Living Clock",
+          desc: "AOSP Freeform desktop with persistent squircle taskbar, spaces pill, and uncropped system tray."
+        },
+        {
+          src: "screenshots/window_multitasking.png",
+          title: "Floating Window Multitasking",
+          desc: "True floating canvas with centered geometry, active window focus, and side-by-side app execution."
+        },
+        {
+          src: "screenshots/task_view_workspaces.png",
+          title: "Task View & Window Cards",
+          desc: "Inspect open apps across dedicated desktop spaces (Desktop 1, Desktop 2) with 1-tap close."
+        },
+        {
+          src: "screenshots/control_center.png",
+          title: "Quick Settings & Control Center",
+          desc: "Instant volume control, display brightness dimmer, target displays, and desktop settings."
+        },
+        {
+          src: "screenshots/app_launcher.png",
+          title: "Full-Screen App Drawer",
+          desc: "Glassmorphic blurred backdrop, live app search, and drag-and-drop dock pinning."
+        }
+      ];
+
+      let currentIndex = 0;
+      const modal = document.getElementById("lightboxModal");
+      const backdrop = document.getElementById("lightboxBackdrop");
+      const img = document.getElementById("lightboxImage");
+      const counter = document.getElementById("lightboxCounter");
+      const title = document.getElementById("lightboxTitle");
+      const desc = document.getElementById("lightboxDesc");
+      const fullRes = document.getElementById("lightboxFullRes");
+      const closeBtn = document.getElementById("lightboxClose");
+      const prevBtn = document.getElementById("lightboxPrev");
+      const nextBtn = document.getElementById("lightboxNext");
+      const thumbsContainer = document.getElementById("lightboxThumbnails");
+
+      // Generate thumbnail items
+      screenshots.forEach((item, idx) => {
+        const thumb = document.createElement("button");
+        thumb.className = "lightbox-thumb" + (idx === 0 ? " active" : "");
+        thumb.type = "button";
+        thumb.title = item.title;
+        thumb.innerHTML = `<img src="${item.src}" alt="${item.title}">`;
+        thumb.addEventListener("click", () => render(idx));
+        thumbsContainer.appendChild(thumb);
+      });
+
+      function render(index) {
+        currentIndex = (index + screenshots.length) % screenshots.length;
+        const data = screenshots[currentIndex];
+        
+        img.style.opacity = "0.4";
+        img.src = data.src;
+        img.onload = () => { img.style.opacity = "1"; };
+
+        counter.textContent = `${currentIndex + 1} / ${screenshots.length}`;
+        title.textContent = data.title;
+        desc.textContent = data.desc;
+        fullRes.href = data.src;
+
+        Array.from(thumbsContainer.children).forEach((thumb, i) => {
+          thumb.classList.toggle("active", i === currentIndex);
+        });
+      }
+
+      function openModal(index) {
+        render(index);
+        modal.classList.add("active");
+        modal.setAttribute("aria-hidden", "false");
+        document.body.style.overflow = "hidden";
+      }
+
+      function closeModal() {
+        modal.classList.remove("active");
+        modal.setAttribute("aria-hidden", "true");
+        document.body.style.overflow = "";
+      }
+
+      function next() { render(currentIndex + 1); }
+      function prev() { render(currentIndex - 1); }
+
+      // Event Listeners
+      closeBtn.addEventListener("click", closeModal);
+      backdrop.addEventListener("click", closeModal);
+      nextBtn.addEventListener("click", next);
+      prevBtn.addEventListener("click", prev);
+
+      document.querySelectorAll("[data-lightbox-index]").forEach(trigger => {
+        trigger.addEventListener("click", () => {
+          const idx = parseInt(trigger.getAttribute("data-lightbox-index"), 10) || 0;
+          openModal(idx);
+        });
+      });
+
+      window.addEventListener("keydown", (e) => {
+        if (!modal.classList.contains("active")) return;
+        if (e.key === "Escape") closeModal();
+        if (e.key === "ArrowRight") next();
+        if (e.key === "ArrowLeft") prev();
+      });
+    })();
+  </script>
 
 </body>
 </html>
