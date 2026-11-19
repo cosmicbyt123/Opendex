@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Deepest Midnight Abyss base -->
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:type="linear"
+                android:angle="135"
+                android:startColor="#020617"
+                android:centerColor="#0B1329"
+                android:endColor="#01040A" />
+        </shape>
+    </item>
+
+    <!-- Broad Atmospheric Cyan Horizon Arc -->
+    <item
+        android:top="120dp"
+        android:bottom="0dp"
+        android:left="0dp"
+        android:right="0dp">
+        <shape android:shape="oval">
+            <gradient
+                android:type="radial"
+                android:gradientRadius="720dp"
+                android:startColor="#4000E5FF"
+                android:centerColor="#200284C7"
+                android:endColor="#00000000" />
+        </shape>
+    </item>
+
+    <!-- Sunset Magenta & Violet Celestial Arc -->
+    <item
+        android:top="20dp"
+        android:bottom="140dp"
+        android:left="280dp"
+        android:right="40dp">
+        <shape android:shape="oval">
+            <gradient
+                android:type="radial"
+                android:gradientRadius="500dp"
+                android:startColor="#4D8B5CF6"
+                android:centerColor="#26EC4899"
+                android:endColor="#00000000" />
+        </shape>
+    </item>
+
+    <!-- Focused Sapphire Core Glow -->
+    <item
+        android:top="180dp"
+        android:bottom="80dp"
+        android:left="380dp"
+        android:right="280dp">
+        <shape android:shape="oval">
+            <gradient
+                android:type="radial"
+                android:gradientRadius="380dp"
+                android:startColor="#5938BDF8"
+                android:centerColor="#1A2563EB"
+                android:endColor="#00000000" />
+        </shape>
+    </item>
+</layer-list>

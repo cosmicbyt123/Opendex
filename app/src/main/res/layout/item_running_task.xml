@@ -1,24 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="46dp"
-    android:layout_height="50dp"
+    android:layout_width="48dp"
+    android:layout_height="52dp"
     android:orientation="vertical"
     android:gravity="center"
-    android:layout_marginStart="2dp"
-    android:layout_marginEnd="2dp"
+    android:layout_marginStart="3dp"
+    android:layout_marginEnd="3dp"
     android:background="@drawable/bg_taskbar_btn"
     android:clickable="true"
     android:focusable="true">
 
-    <ImageView
-        android:id="@+id/runningTaskIcon"
-        android:layout_width="34dp"
-        android:layout_height="34dp"
+    <!-- Unified Squircle Tile Frame for Every App Icon -->
+    <FrameLayout
+        android:layout_width="38dp"
+        android:layout_height="38dp"
         android:layout_gravity="center_horizontal"
-        android:contentDescription="Running App" />
+        android:background="@drawable/bg_dock_squircle"
+        android:padding="3dp">
 
-    <!-- macOS-style Active Indicator Dot -->
+        <ImageView
+            android:id="@+id/runningTaskIcon"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="fitCenter"
+            android:contentDescription="App Icon" />
+    </FrameLayout>
+
+    <!-- macOS / DeX Active Window Indicator Dot -->
     <View
         android:id="@+id/runningTaskIndicator"
         android:layout_width="5dp"

@@ -28,11 +28,12 @@ class WallpaperManager(private val context: Context) {
     data class Preset(val title: String, val drawableRes: Int)
 
     val presets = listOf(
+        Preset("Celestial Hyper Space", R.drawable.wallpaper_hyper_space),
         Preset("Cosmic Sequoia", R.drawable.wallpaper_cosmic_sequoia),
-        Preset("Windows 11 Bloom", R.drawable.wallpaper_windows_bloom),
+        Preset("Azure Bloom", R.drawable.wallpaper_windows_bloom),
         Preset("Aurora Borealis", R.drawable.wallpaper_aurora_borealis),
         Preset("Cyberpunk Midnight", R.drawable.wallpaper_cyberpunk),
-        Preset("DeX Slate Nebula", R.drawable.wallpaper_dex_dark),
+        Preset("Slate Nebula", R.drawable.wallpaper_dex_dark),
         Preset("Deep Emerald", R.drawable.wallpaper_emerald),
         Preset("Sapphire Abyss", R.drawable.wallpaper_sapphire)
     )

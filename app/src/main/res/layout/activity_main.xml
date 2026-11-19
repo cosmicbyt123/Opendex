@@ -13,7 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="centerCrop"
-        android:src="@drawable/wallpaper_cosmic_sequoia"
+        android:src="@drawable/wallpaper_hyper_space"
         android:contentDescription="Wallpaper" />
 
     <!-- Clean Empty Desktop Canvas (Preserved for compatibility) -->
@@ -25,7 +25,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <!-- Samsung DeX Style Living Desktop Clock & Glance Widget -->
+    <!-- Living Desktop Clock & Glance Widget -->
     <LinearLayout
         android:id="@+id/desktopClockWidget"
         android:layout_width="wrap_content"
@@ -463,10 +463,72 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical" />
+
+            <!-- Active Windows Overview (Task View / Show Windows) -->
+            <TextView
+                android:id="@+id/taskViewWindowsTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Active Windows"
+                android:textColor="@color/dex_text_primary"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="8dp" />
+
+            <LinearLayout
+                android:id="@+id/taskViewWindowsRow"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
-    <!-- Single Unified Samsung DeX / Lenovo PC Taskbar -->
+    <!-- Centered Workspace Switch HUD Indicator -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/workspaceHUD"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="32dp"
+        app:cardBackgroundColor="#CC0F172A"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingStart="24dp"
+            android:paddingEnd="24dp"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp">
+
+            <ImageView
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:src="@drawable/ic_task_view"
+                app:tint="@color/dex_accent_cyan"
+                android:contentDescription="Workspace" />
+
+            <TextView
+                android:id="@+id/workspaceHUDText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:text="Desktop 1"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Single Unified Desktop Taskbar -->
     <LinearLayout
         android:id="@+id/taskbar"
         android:layout_width="match_parent"
@@ -630,6 +692,18 @@
                 android:src="@drawable/ic_keyboard"
                 app:tint="@color/dex_accent_cyan"
                 android:contentDescription="Virtual Keyboard"
+                android:clickable="true"
+                android:focusable="true" />
+
+            <!-- Notifications Center Toggle Button -->
+            <ImageView
+                android:id="@+id/trayNotificationBtn"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_marginEnd="10dp"
+                android:src="@drawable/ic_notification"
+                app:tint="@color/dex_accent_cyan"
+                android:contentDescription="Notifications"
                 android:clickable="true"
                 android:focusable="true" />
 

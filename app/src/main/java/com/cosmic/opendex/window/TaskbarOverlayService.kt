@@ -1,12 +1,15 @@
 package com.cosmic.opendex.window
 
+import android.app.ActivityOptions
 import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.graphics.PixelFormat
+import android.hardware.display.DisplayManager
 import android.os.IBinder
 import android.provider.Settings
 import android.util.Log
+import android.view.Display
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -17,25 +20,28 @@ import com.cosmic.opendex.MainActivity
 import com.cosmic.opendex.R
 
 /**
- * Persistent system overlay taskbar that floats on top of ALL apps (Amazon, YouTube, Chrome, etc.)
- * so the user always has Back Navigation, Start Menu, and Desktop controls visible at all times.
+ * Persistent system overlay taskbar that floats on top of ALL apps
+ * so the user always has Back Navigation, Start Menu, Virtual Desktops, and Notifications.
  */
 class TaskbarOverlayService : Service() {
 
     private val TAG = "OpenDeX:OverlayTaskbar"
     private var windowManager: WindowManager? = null
     private var overlayView: View? = null
+    private var currentDisplayId: Int = Display.DEFAULT_DISPLAY
 
     companion object {
         const val ACTION_START_OVERLAY = "com.cosmic.opendex.ACTION_START_OVERLAY"
         const val ACTION_STOP_OVERLAY = "com.cosmic.opendex.ACTION_STOP_OVERLAY"
         const val ACTION_UPDATE_ACTIVE_APP = "com.cosmic.opendex.ACTION_UPDATE_ACTIVE_APP"
         const val EXTRA_ACTIVE_APP_LABEL = "extra_active_app_label"
+        const val EXTRA_TARGET_DISPLAY_ID = "extra_target_display_id"
 
-        fun start(context: Context) {
+        fun start(context: Context, displayId: Int = -1) {
             if (Settings.canDrawOverlays(context)) {
                 val intent = Intent(context, TaskbarOverlayService::class.java).apply {
                     action = ACTION_START_OVERLAY
+                    putExtra(EXTRA_TARGET_DISPLAY_ID, displayId)
                 }
                 context.startService(intent)
             }
@@ -62,6 +68,11 @@ class TaskbarOverlayService : Service() {
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        val displayId = intent?.getIntExtra(EXTRA_TARGET_DISPLAY_ID, -1) ?: -1
+        if (displayId != -1) {
+            currentDisplayId = displayId
+        }
+
         when (intent?.action) {
             ACTION_STOP_OVERLAY -> {
                 removeOverlay()
@@ -72,13 +83,13 @@ class TaskbarOverlayService : Service() {
                 overlayView?.findViewById<TextView>(R.id.overlayActiveLabel)?.text = label
             }
             else -> {
-                showOverlay()
+                showOverlay(currentDisplayId)
             }
         }
         return START_STICKY
     }
 
-    private fun showOverlay() {
+    private fun showOverlay(displayId: Int) {
         if (!Settings.canDrawOverlays(this)) {
             Log.w(TAG, "Cannot show overlay: SYSTEM_ALERT_WINDOW not granted")
             return
@@ -86,7 +97,20 @@ class TaskbarOverlayService : Service() {
 
         if (overlayView != null) return
 
-        windowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        val displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
+        val targetDisplay = if (displayId != -1 && displayId != Display.DEFAULT_DISPLAY) {
+            displayManager.getDisplay(displayId)
+        } else {
+            null
+        }
+
+        val targetContext = if (targetDisplay != null) {
+            createDisplayContext(targetDisplay)
+        } else {
+            this
+        }
+
+        windowManager = targetContext.getSystemService(Context.WINDOW_SERVICE) as WindowManager
         val barHeightPx = (52 * resources.displayMetrics.density).toInt()
 
         val params = WindowManager.LayoutParams(
@@ -100,45 +124,79 @@ class TaskbarOverlayService : Service() {
             gravity = Gravity.BOTTOM or Gravity.START
         }
 
-        val inflater = LayoutInflater.from(this)
+        val inflater = LayoutInflater.from(targetContext)
         val view = inflater.inflate(R.layout.view_taskbar_overlay, null)
 
         val startBtn = view.findViewById<FrameLayout>(R.id.overlayStartBtn)
         val backBtn = view.findViewById<FrameLayout>(R.id.overlayBackBtn)
         val taskViewBtn = view.findViewById<FrameLayout>(R.id.overlayTaskViewBtn)
+        val notificationBtn = view.findViewById<FrameLayout>(R.id.overlayNotificationBtn)
 
-        // Back Button: Brings OpenDeX desktop straight back to the top over any app!
+        fun launchHome(extraFlag: String? = null) {
+            val homeIntent = Intent(targetContext, MainActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+                if (extraFlag != null) {
+                    putExtra(extraFlag, true)
+                }
+            }
+            if (targetDisplay != null) {
+                try {
+                    val opt = ActivityOptions.makeBasic()
+                    val m = ActivityOptions::class.java.getMethod("setLaunchDisplayId", Int::class.javaPrimitiveType)
+                    m.invoke(opt, targetDisplay.displayId)
+                    targetContext.startActivity(homeIntent, opt.toBundle())
+                    return
+                } catch (e: Exception) {
+                    Log.w(TAG, "setLaunchDisplayId reflection failed: ${e.message}")
+                }
+            }
+            targetContext.startActivity(homeIntent)
+        }
+
+        // Back Navigation Button
         backBtn.setOnClickListener {
-            val homeIntent = Intent(this, MainActivity::class.java).apply {
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
-            }
-            startActivity(homeIntent)
+            launchHome()
         }
 
-        // Start Button: Opens OpenDeX with Start Menu open
+        // Start / App Drawer Button
         startBtn.setOnClickListener {
-            val homeIntent = Intent(this, MainActivity::class.java).apply {
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
-                putExtra(MainActivity.EXTRA_OPEN_START_MENU, true)
-            }
-            startActivity(homeIntent)
+            launchHome(MainActivity.EXTRA_OPEN_START_MENU)
         }
 
-        // Task View Button: Opens OpenDeX with Virtual Desktops open
+        // Task View Button
         taskViewBtn.setOnClickListener {
-            val homeIntent = Intent(this, MainActivity::class.java).apply {
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
-                putExtra(MainActivity.EXTRA_OPEN_TASK_VIEW, true)
-            }
-            startActivity(homeIntent)
+            launchHome(MainActivity.EXTRA_OPEN_TASK_VIEW)
+        }
+
+        // Notification Button
+        notificationBtn?.setOnClickListener {
+            expandNotifications()
         }
 
         try {
             windowManager?.addView(view, params)
             overlayView = view
-            Log.i(TAG, "Persistent Floating Taskbar Overlay is now active on top of all apps!")
+            Log.i(TAG, "Persistent Floating Taskbar Overlay is now active on display $displayId")
         } catch (e: Exception) {
-            Log.e(TAG, "Failed to add floating taskbar overlay: ${e.message}")
+            Log.e(TAG, "Failed to add floating taskbar overlay: ${e.message}", e)
+        }
+    }
+
+    private fun expandNotifications() {
+        try {
+            val statusBarService = getSystemService("statusbar")
+            val method = statusBarService.javaClass.getMethod("expandNotificationsPanel")
+            method.invoke(statusBarService)
+        } catch (e: Exception) {
+            Log.w(TAG, "Cannot expand notification panel via reflection: ${e.message}")
+            try {
+                val intent = Intent("android.settings.NOTIFICATION_SETTINGS").apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                }
+                startActivity(intent)
+            } catch (ex: Exception) {
+                Log.e(TAG, "Cannot open notification settings: ${ex.message}")
+            }
         }
     }
 

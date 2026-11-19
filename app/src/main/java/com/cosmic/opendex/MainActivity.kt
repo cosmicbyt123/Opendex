@@ -76,6 +76,9 @@ class MainActivity : AppCompatActivity() {
 
     private var threeFingerStartX = 0f
     private var isThreeFingerSwipeActive = false
+    private var desktopStartX = 0f
+    private var desktopStartY = 0f
+    private var isDesktopSwipeActive = false
     private var hasPromptedOverlay = false
 
     private lateinit var appRepository: AppRepository
@@ -178,8 +181,7 @@ class MainActivity : AppCompatActivity() {
         setupListeners()
         setupControlCenter()
         setupVirtualDesktops()
-        setupThreeFingerSwipe()
-        setupDockMagnification()
+        setupDesktopSwipeGestures()
         setupDockDragAndDrop()
         wallpaperManager.applyWallpaper(desktopWallpaper)
         loadApplications()
@@ -329,17 +331,13 @@ class MainActivity : AppCompatActivity() {
         runningTasksList.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         runningTasksAdapter = RunningTasksAdapter(
             onTaskClick = { task ->
-                val v = runningTasksList.findViewWithTag<View>(task.id)
-                val action = {
-                    if (task.isPinnedOnly) {
-                        launchApplication(task.app)
-                    } else if (task.isMinimized) {
-                        restoreActiveTask(task)
-                    } else {
-                        minimizeActiveTask(task)
-                    }
+                if (task.isPinnedOnly) {
+                    launchApplication(task.app)
+                } else if (task.isMinimized) {
+                    restoreActiveTask(task)
+                } else {
+                    minimizeActiveTask(task)
                 }
-                action()
             },
             onTaskClose = { task ->
                 if (!task.isPinnedOnly) {
@@ -421,6 +419,10 @@ class MainActivity : AppCompatActivity() {
         trayKeyboardBtn.setOnClickListener {
             val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
             imm.toggleSoftInput(android.view.inputmethod.InputMethodManager.SHOW_FORCED, 0)
+        }
+
+        findViewById<View?>(R.id.trayNotificationBtn)?.setOnClickListener {
+            expandNotificationsShade()
         }
 
         findViewById<View>(R.id.desktopSettingsBtn).setOnClickListener {
@@ -533,91 +535,22 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupDockMagnification() {
-        // macOS Mouse / Trackpad Magnification Wave
-        runningTasksList.setOnGenericMotionListener { _, event ->
-            when (event.action) {
-                MotionEvent.ACTION_HOVER_MOVE -> {
-                    applyDockMagnification(runningTasksList, event.x)
-                    true
+    private fun expandNotificationsShade() {
+        try {
+            val statusBarService = getSystemService("statusbar")
+            val method = statusBarService.javaClass.getMethod("expandNotificationsPanel")
+            method.invoke(statusBarService)
+        } catch (e: Exception) {
+            Log.w(TAG, "Cannot expand notification panel via reflection: ${e.message}")
+            try {
+                val intent = Intent("android.settings.NOTIFICATION_SETTINGS").apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
                 }
-                MotionEvent.ACTION_HOVER_EXIT -> {
-                    resetDockMagnification(runningTasksList)
-                    true
-                }
-                else -> false
+                startActivity(intent)
+            } catch (ex: Exception) {
+                Toast.makeText(this, "Notifications", Toast.LENGTH_SHORT).show()
             }
         }
-
-        // Touch scrubbing magnification
-        runningTasksList.addOnItemTouchListener(object : RecyclerView.SimpleOnItemTouchListener() {
-            override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
-                when (e.action) {
-                    MotionEvent.ACTION_MOVE -> {
-                        applyDockMagnification(rv, e.x)
-                    }
-                    MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                        resetDockMagnification(rv)
-                    }
-                }
-                return false
-            }
-        })
-    }
-
-    private fun applyDockMagnification(container: ViewGroup, focusX: Float) {
-        val density = resources.displayMetrics.density
-        val maxRadius = 90f * density
-
-        for (i in 0 until container.childCount) {
-            val child = container.getChildAt(i)
-            val childCenterX = child.x + child.width / 2f
-            val distance = kotlin.math.abs(focusX - childCenterX)
-
-            if (distance < maxRadius) {
-                val factor = kotlin.math.cos((distance / maxRadius) * (Math.PI / 2)).toFloat()
-                val scale = 1.0f + 0.30f * factor
-                val transY = -14f * density * factor
-
-                child.scaleX = scale
-                child.scaleY = scale
-                child.translationY = transY
-            } else {
-                child.scaleX = 1.0f
-                child.scaleY = 1.0f
-                child.translationY = 0f
-            }
-        }
-    }
-
-    private fun resetDockMagnification(container: ViewGroup) {
-        for (i in 0 until container.childCount) {
-            val child = container.getChildAt(i)
-            child.animate()
-                .scaleX(1.0f)
-                .scaleY(1.0f)
-                .translationY(0f)
-                .setDuration(160)
-                .setInterpolator(DecelerateInterpolator())
-                .start()
-        }
-    }
-
-    private fun bounceDockItem(v: View, onEnd: () -> Unit) {
-        val density = resources.displayMetrics.density
-        v.animate()
-            .translationY(-22f * density)
-            .setDuration(140)
-            .setInterpolator(OvershootInterpolator(2.2f))
-            .withEndAction {
-                v.animate()
-                    .translationY(0f)
-                    .setDuration(150)
-                    .setInterpolator(DecelerateInterpolator())
-                    .withEndAction { onEnd() }
-                    .start()
-            }
-            .start()
     }
 
     private fun setupDockDragAndDrop() {
@@ -744,10 +677,13 @@ class MainActivity : AppCompatActivity() {
                 isClickable = true
                 isFocusable = true
                 setOnClickListener {
-                    virtualDesktopManager.switchDesktop(desktop.id - 1)
+                    val currentIdx = virtualDesktopManager.activeIndex
+                    val targetIdx = desktop.id - 1
+                    val dir = if (targetIdx >= currentIdx) 1 else -1
+                    virtualDesktopManager.switchDesktop(targetIdx)
                     renderVirtualDesktops()
                     toggleTaskView(false)
-                    Toast.makeText(this@MainActivity, "Workspace: ${desktop.name}", Toast.LENGTH_SHORT).show()
+                    animateWorkspaceTransition(dir)
                 }
 
                 // Desktop Title & Badge
@@ -814,6 +750,96 @@ class MainActivity : AppCompatActivity() {
             addView(label)
         }
         virtualDesktopsRow.addView(addCard)
+        renderOpenWindowsInTaskView()
+    }
+
+    private fun renderOpenWindowsInTaskView() {
+        val container = findViewById<LinearLayout>(R.id.taskViewWindowsRow) ?: return
+        val title = findViewById<TextView>(R.id.taskViewWindowsTitle) ?: return
+        container.removeAllViews()
+
+        if (activeTasks.isEmpty()) {
+            title.text = "Active Windows (None Open)"
+            val emptyLabel = TextView(this).apply {
+                text = "No open windows on this desktop."
+                textSize = 11f
+                setTextColor(0xFF94A3B8.toInt())
+                setPadding(8, 4, 8, 4)
+            }
+            container.addView(emptyLabel)
+            return
+        }
+
+        title.text = "Active Windows (${activeTasks.size})"
+        for (task in activeTasks) {
+            val card = LinearLayout(this).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = android.view.Gravity.CENTER_VERTICAL
+                val cardHeight = (44 * resources.displayMetrics.density).toInt()
+                layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, cardHeight).apply {
+                    marginEnd = (8 * resources.displayMetrics.density).toInt()
+                }
+                background = android.graphics.drawable.GradientDrawable().apply {
+                    shape = android.graphics.drawable.GradientDrawable.RECTANGLE
+                    cornerRadius = 10 * resources.displayMetrics.density
+                    setColor(0x26FFFFFF.toInt())
+                    setStroke((1 * resources.displayMetrics.density).toInt(), 0x33FFFFFF.toInt())
+                }
+                setPadding((8 * resources.displayMetrics.density).toInt(), 0, (8 * resources.displayMetrics.density).toInt(), 0)
+                isClickable = true
+                isFocusable = true
+
+                // App Icon
+                val icon = ImageView(this@MainActivity).apply {
+                    val iconSize = (26 * resources.displayMetrics.density).toInt()
+                    layoutParams = LinearLayout.LayoutParams(iconSize, iconSize).apply {
+                        marginEnd = (8 * resources.displayMetrics.density).toInt()
+                    }
+                    setImageDrawable(task.app.icon)
+                }
+                addView(icon)
+
+                // App Name & State
+                val textCol = LinearLayout(this@MainActivity).apply {
+                    orientation = LinearLayout.VERTICAL
+                    val name = TextView(this@MainActivity).apply {
+                        text = task.app.label
+                        textSize = 12f
+                        setTypeface(null, android.graphics.Typeface.BOLD)
+                        setTextColor(0xFFFFFFFF.toInt())
+                    }
+                    val state = TextView(this@MainActivity).apply {
+                        text = if (task.isMinimized) "Minimized" else "Active Window"
+                        textSize = 9f
+                        setTextColor(if (task.isMinimized) 0xFF94A3B8.toInt() else 0xFF00E5FF.toInt())
+                    }
+                    addView(name)
+                    addView(state)
+                }
+                addView(textCol)
+
+                // Close Button
+                val close = ImageView(this@MainActivity).apply {
+                    val closeSize = (18 * resources.displayMetrics.density).toInt()
+                    layoutParams = LinearLayout.LayoutParams(closeSize, closeSize).apply {
+                        marginStart = (10 * resources.displayMetrics.density).toInt()
+                    }
+                    setImageResource(R.drawable.ic_window_close)
+                    setColorFilter(0xFFEF4444.toInt())
+                    setOnClickListener {
+                        closeActiveTask(task)
+                        renderOpenWindowsInTaskView()
+                    }
+                }
+                addView(close)
+
+                setOnClickListener {
+                    toggleTaskView(false)
+                    restoreActiveTask(task)
+                }
+            }
+            container.addView(card)
+        }
     }
 
     private fun toggleControlCenter(forceState: Boolean? = null) {
@@ -877,10 +903,10 @@ class MainActivity : AppCompatActivity() {
             startMenuAdapter.submitList(allLoadedApps)
             allAppsCountText.text = "${allLoadedApps.size} Applications"
 
-            // Curate the 5 pure Samsung DeX essentials (Browser, Files, Gallery, Camera, Settings)
+            // Curate the 5 essential desktop apps (Browser, Files, Gallery, Camera, Settings)
             val pinnedComponentNames = desktopPreferences.getPinnedApps().toMutableList()
             if (pinnedComponentNames.isEmpty() || pinnedComponentNames.size > 6) {
-                val curated = findCuratedDeXPins(allLoadedApps)
+                val curated = findCuratedEssentialPins(allLoadedApps)
                 desktopPreferences.savePinnedApps(curated)
                 pinnedComponentNames.clear()
                 pinnedComponentNames.addAll(curated)
@@ -892,7 +918,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun findCuratedDeXPins(apps: List<AppModel>): List<String> {
+    private fun findCuratedEssentialPins(apps: List<AppModel>): List<String> {
         val pins = mutableListOf<String>()
 
         fun addFirstMatch(predicate: (AppModel) -> Boolean) {
@@ -956,7 +982,7 @@ class MainActivity : AppCompatActivity() {
 
         // Ensure floating taskbar overlay is running so the user always has Back & Taskbar
         if (Settings.canDrawOverlays(this)) {
-            TaskbarOverlayService.start(this)
+            TaskbarOverlayService.start(this, displayId)
             TaskbarOverlayService.updateActiveApp(this, app.label)
         } else {
             promptOverlayPermissionOnce()
@@ -1315,7 +1341,7 @@ class MainActivity : AppCompatActivity() {
         dialog.show()
     }
 
-    private fun setupThreeFingerSwipe() {
+    private fun setupDesktopSwipeGestures() {
         val desktopRoot = findViewById<View>(R.id.desktopRoot)
         desktopRoot.setOnTouchListener { _, event ->
             if (event.pointerCount >= 3) {
@@ -1338,6 +1364,32 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
                 true
+            } else if (event.pointerCount == 1) {
+                when (event.actionMasked) {
+                    MotionEvent.ACTION_DOWN -> {
+                        desktopStartX = event.x
+                        desktopStartY = event.y
+                        isDesktopSwipeActive = true
+                    }
+                    MotionEvent.ACTION_UP -> {
+                        if (isDesktopSwipeActive) {
+                            val deltaX = event.x - desktopStartX
+                            val deltaY = event.y - desktopStartY
+                            if (kotlin.math.abs(deltaX) > 140 && kotlin.math.abs(deltaX) > kotlin.math.abs(deltaY) * 1.5f) {
+                                if (deltaX < -140) {
+                                    switchToNextDesktop()
+                                } else if (deltaX > 140) {
+                                    switchToPreviousDesktop()
+                                }
+                            }
+                            isDesktopSwipeActive = false
+                        }
+                    }
+                    MotionEvent.ACTION_CANCEL -> {
+                        isDesktopSwipeActive = false
+                    }
+                }
+                false
             } else {
                 false
             }
@@ -1352,7 +1404,7 @@ class MainActivity : AppCompatActivity() {
         if (::workspaceBadgeText.isInitialized) {
             workspaceBadgeText.text = "● ${d.name}"
         }
-        Toast.makeText(this, "Workspace: ${d.name}", Toast.LENGTH_SHORT).show()
+        animateWorkspaceTransition(1)
     }
 
     private fun switchToPreviousDesktop() {
@@ -1363,7 +1415,75 @@ class MainActivity : AppCompatActivity() {
         if (::workspaceBadgeText.isInitialized) {
             workspaceBadgeText.text = "● ${d.name}"
         }
-        Toast.makeText(this, "Workspace: ${d.name}", Toast.LENGTH_SHORT).show()
+        animateWorkspaceTransition(-1)
+    }
+
+    private fun animateWorkspaceTransition(direction: Int) {
+        val screenWidth = resources.displayMetrics.widthPixels.toFloat()
+        val transOffset = if (direction > 0) screenWidth * 0.40f else -screenWidth * 0.40f
+
+        val clockWidget = findViewById<View>(R.id.desktopClockWidget)
+        clockWidget?.let { widget ->
+            widget.animate()
+                .translationX(-transOffset)
+                .alpha(0.2f)
+                .setDuration(120)
+                .setInterpolator(AccelerateInterpolator())
+                .withEndAction {
+                    widget.translationX = transOffset
+                    widget.animate()
+                        .translationX(0f)
+                        .alpha(1f)
+                        .setDuration(220)
+                        .setInterpolator(DecelerateInterpolator(1.8f))
+                        .start()
+                }
+                .start()
+        }
+
+        desktopWallpaper.animate()
+            .translationX(-transOffset * 0.12f)
+            .setDuration(130)
+            .withEndAction {
+                desktopWallpaper.animate()
+                    .translationX(0f)
+                    .setDuration(220)
+                    .setInterpolator(DecelerateInterpolator())
+                    .start()
+            }
+            .start()
+
+        showWorkspaceHUD()
+    }
+
+    private fun showWorkspaceHUD() {
+        val current = virtualDesktopManager.getCurrentDesktop()
+        val hud = findViewById<View>(R.id.workspaceHUD) ?: return
+        val hudText = findViewById<TextView>(R.id.workspaceHUDText) ?: return
+
+        hudText.text = current.name
+        hud.scaleX = 0.85f
+        hud.scaleY = 0.85f
+        hud.alpha = 0f
+        hud.visibility = View.VISIBLE
+        hud.animate()
+            .scaleX(1.0f)
+            .scaleY(1.0f)
+            .alpha(1f)
+            .setDuration(160)
+            .setInterpolator(DecelerateInterpolator(2.0f))
+            .withEndAction {
+                hud.postDelayed({
+                    hud.animate()
+                        .scaleX(0.9f)
+                        .scaleY(0.9f)
+                        .alpha(0f)
+                        .setDuration(220)
+                        .withEndAction { hud.visibility = View.GONE }
+                        .start()
+                }, 600)
+            }
+            .start()
     }
 
     private fun promptOverlayPermissionOnce() {
