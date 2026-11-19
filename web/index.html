@@ -25,8 +25,8 @@
       <ul class="nav-links">
         <li><a href="#features">Features</a></li>
         <li><a href="#showcase">Gallery</a></li>
-        <li><a href="#architecture">Architecture</a></li>
         <li><a href="#quickstart">Quick Start</a></li>
+        <li><a href="OpenDeX-v1.2.0.apk" download="OpenDeX-v1.2.0.apk" class="btn-nav" style="background: rgba(0, 229, 255, 0.15); color: var(--accent-cyan); border-color: rgba(0, 229, 255, 0.4);">Download APK</a></li>
         <li><a href="https://github.com/cosmicbyt123/Opendex" target="_blank" class="btn-nav">GitHub</a></li>
       </ul>
     </div>
@@ -45,13 +45,13 @@
           Native multi-window computing for tablets (on-device PC mode) and smartphones (external monitor workstation). Resizable floating apps, virtual workspaces, persistent overlay navigation, and zero vendor lock-in. Powered natively by AOSP Windowing Mode 5 without Knox or root.
         </p>
         <div class="hero-cta">
-          <a href="https://github.com/cosmicbyt123/Opendex/releases" class="btn-primary">
+          <a href="OpenDeX-v1.2.0.apk" download="OpenDeX-v1.2.0.apk" class="btn-primary">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
-            Download Latest APK
+            Download OpenDeX v1.2.0 (APK)
           </a>
           <a href="https://github.com/cosmicbyt123/Opendex" target="_blank" class="btn-secondary">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
-            Star on GitHub
+            GitHub Repository
           </a>
         </div>
 
@@ -206,74 +206,6 @@
       </div>
     </section>
 
-    <!-- Architecture Section -->
-    <section class="section" id="architecture">
-      <div class="container">
-        <div class="section-header">
-          <div class="section-tag">Under the Hood</div>
-          <h2 class="section-title">OpenDeX System Architecture</h2>
-          <p class="hero-subtitle" style="margin-top: -8px;">
-            How OpenDeX unlocks native desktop workstation capabilities on Android without root or vendor lock-in.
-          </p>
-        </div>
-
-        <div class="arch-grid">
-          
-          <!-- Pillar 1: AOSP Freeform Mode -->
-          <div class="arch-card">
-            <div class="arch-header">
-              <span class="arch-step-badge">Pillar 01</span>
-              <span style="color: var(--accent-cyan); font-size: 12px; font-weight: 700;">WINDOWING_MODE = 5</span>
-            </div>
-            <h3 class="arch-card-title">AOSP Freeform Windowing</h3>
-            <p class="arch-card-desc">
-              Instead of running apps in standard fullscreen mode, OpenDeX hooks into Android's native multi-window framework (`ActivityOptions.setLaunchWindowingMode(5)`). Every application executes as an independent, floating window container with custom pixel bounds.
-            </p>
-            <div class="arch-code-box">
-              <span class="arch-code-comment">// AOSP Platform Freeform Hook</span>
-              options.setLaunchWindowingMode(5)<br>
-              options.launchBounds = Rect(left, top, right, bottom)
-            </div>
-          </div>
-
-          <!-- Pillar 2: Tablet & Multi-Display Routing -->
-          <div class="arch-card">
-            <div class="arch-header">
-              <span class="arch-step-badge">Pillar 02</span>
-              <span style="color: var(--accent-cyan); font-size: 12px; font-weight: 700;">DisplayManager API</span>
-            </div>
-            <h3 class="arch-card-title">Tablet &amp; Multi-Display Routing</h3>
-            <p class="arch-card-desc">
-              OpenDeX operates in dual configurations: On Android tablets, it runs directly on the device display as an on-device PC mode. On smartphones, it isolates external monitors via `ActivityOptions.setLaunchDisplayId`, keeping the phone screen free for independent tasks.
-            </p>
-            <div class="arch-code-box">
-              <span class="arch-code-comment">// Dynamic Target Display Routing</span>
-              val target = displayDetectionManager.activeTargetDisplayId<br>
-              options.setLaunchDisplayId(target)
-            </div>
-          </div>
-
-          <!-- Pillar 3: Persistent Overlay -->
-          <div class="arch-card">
-            <div class="arch-header">
-              <span class="arch-step-badge">Pillar 03</span>
-              <span style="color: var(--accent-cyan); font-size: 12px; font-weight: 700;">WindowManager Overlay</span>
-            </div>
-            <h3 class="arch-card-title">Persistent Overlay Taskbar</h3>
-            <p class="arch-card-desc">
-              To prevent third-party apps from locking users out when entering fullscreen, `TaskbarOverlayService` binds to the target display's `DisplayContext` using `TYPE_APPLICATION_OVERLAY`. This guarantees Back navigation, Start Menu, and Virtual Desktops remain accessible.
-            </p>
-            <div class="arch-code-box">
-              <span class="arch-code-comment">// Isolated DisplayContext Overlay</span>
-              val ctx = createDisplayContext(targetDisplay)<br>
-              wm = ctx.getSystemService(WindowManager::class.java)
-            </div>
-          </div>
-
-        </div>
-      </div>
-    </section>
-
     <!-- Quick Start Terminal Section -->
     <section class="section" id="quickstart">
       <div class="container">
@@ -289,7 +221,13 @@
             <div class="terminal-dot dot-green"></div>
           </div>
           <div class="command-line">
-            <span class="prompt"># 1. Enable standard AOSP Freeform mode via ADB</span>
+            <span class="prompt"># 1. Install OpenDeX on your Android tablet or phone</span>
+          </div>
+          <div class="command-line">
+            <span class="prompt">$</span> adb install OpenDeX-v1.2.0.apk
+          </div>
+          <div class="command-line" style="margin-top: 16px;">
+            <span class="prompt"># 2. Enable standard AOSP Freeform mode</span>
           </div>
           <div class="command-line">
             <span class="prompt">$</span> adb shell settings put global enable_freeform_support 1
@@ -298,7 +236,7 @@
             <span class="prompt">$</span> adb shell settings put global force_resizable_activities 1
           </div>
           <div class="command-line" style="margin-top: 16px;">
-            <span class="prompt"># 2. Launch high-DPI virtual desktop on laptop with scrcpy</span>
+            <span class="prompt"># 3. Connect external monitor or launch virtual display with scrcpy</span>
           </div>
           <div class="command-line">
             <span class="prompt">$</span> scrcpy --new-display=1920x1200/240 --window-title="OpenDeX Desktop" --stay-awake
