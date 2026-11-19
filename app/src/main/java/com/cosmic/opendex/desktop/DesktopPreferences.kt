@@ -17,6 +17,7 @@ class DesktopPreferences(context: Context) {
         private const val KEY_PINNED_APPS = "key_pinned_desktop_apps"
         private const val KEY_WALLPAPER_TYPE = "key_wallpaper_type"
         private const val KEY_WALLPAPER_PRESET = "key_wallpaper_preset"
+        private const val KEY_HAS_SEEN_ONBOARDING = "key_has_seen_onboarding"
 
         const val WALLPAPER_TYPE_PRESET = "PRESET"
         const val WALLPAPER_TYPE_CUSTOM = "CUSTOM"
@@ -89,5 +90,13 @@ class DesktopPreferences(context: Context) {
         prefs.edit()
             .putString(KEY_WALLPAPER_TYPE, WALLPAPER_TYPE_SYSTEM)
             .apply()
+    }
+
+    fun hasSeenOnboarding(): Boolean {
+        return prefs.getBoolean(KEY_HAS_SEEN_ONBOARDING, false)
+    }
+
+    fun setHasSeenOnboarding(seen: Boolean) {
+        prefs.edit().putBoolean(KEY_HAS_SEEN_ONBOARDING, seen).apply()
     }
 }

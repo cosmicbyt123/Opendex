@@ -17,6 +17,7 @@ import android.provider.Settings
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
+import android.view.Display
 import android.view.DragEvent
 import android.view.KeyEvent
 import android.view.LayoutInflater
@@ -185,6 +186,7 @@ class MainActivity : AppCompatActivity() {
         setupDockDragAndDrop()
         wallpaperManager.applyWallpaper(desktopWallpaper)
         loadApplications()
+        showSetupOnboardingDialog(force = false)
     }
 
     override fun onNewIntent(intent: Intent?) {
@@ -1283,6 +1285,7 @@ class MainActivity : AppCompatActivity() {
                 }
                 3 -> {
                     loadApplications()
+        showSetupOnboardingDialog(force = false)
                     Toast.makeText(this, "Refreshed applications", Toast.LENGTH_SHORT).show()
                     true
                 }
@@ -1486,21 +1489,87 @@ class MainActivity : AppCompatActivity() {
             .start()
     }
 
-    private fun promptOverlayPermissionOnce() {
-        if (!hasPromptedOverlay && !Settings.canDrawOverlays(this)) {
-            hasPromptedOverlay = true
-            AlertDialog.Builder(this)
-                .setTitle("Keep Navigation & Taskbar Visible")
-                .setMessage("To keep the Back button and Taskbar floating on top when apps like Amazon are open, please allow 'Display over other apps'.")
-                .setPositiveButton("Enable in Settings") { _, _ ->
+    private fun showSetupOnboardingDialog(force: Boolean = false) {
+        val hasSeen = desktopPreferences.hasSeenOnboarding()
+        if (!force && hasSeen && Settings.canDrawOverlays(this)) {
+            return
+        }
+
+        val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_setup_onboarding, null)
+        val dialog = AlertDialog.Builder(this)
+            .setView(dialogView)
+            .create()
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        val btnGrantOverlay = dialogView.findViewById<MaterialButton>(R.id.btnGrantOverlay)
+        val freeformBadge = dialogView.findViewById<TextView>(R.id.freeformStatusBadge)
+        val freeformSubtitle = dialogView.findViewById<TextView>(R.id.freeformStatusSubtitle)
+        val displaySubtitle = dialogView.findViewById<TextView>(R.id.activeDisplaySubtitle)
+        val displayBadge = dialogView.findViewById<TextView>(R.id.displayTypeBadge)
+        val btnDone = dialogView.findViewById<MaterialButton>(R.id.btnDoneSetup)
+
+        if (Settings.canDrawOverlays(this)) {
+            btnGrantOverlay.text = "✓ Active"
+            btnGrantOverlay.isEnabled = false
+            btnGrantOverlay.setBackgroundColor(0xFF10B981.toInt())
+            btnGrantOverlay.setTextColor(0xFFFFFFFF.toInt())
+        } else {
+            btnGrantOverlay.text = "Grant"
+            btnGrantOverlay.setOnClickListener {
+                try {
                     val intent = Intent(
                         Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
                         Uri.parse("package:$packageName")
                     )
                     startActivity(intent)
+                } catch (e: Exception) {
+                    Toast.makeText(this, "Enable Display over other apps for OpenDeX", Toast.LENGTH_LONG).show()
                 }
-                .setNegativeButton("Later", null)
-                .show()
+            }
+        }
+
+        val isFreeformOn = try {
+            Settings.Global.getInt(contentResolver, "enable_freeform_support", 0) == 1
+        } catch (e: Exception) { false }
+
+        if (isFreeformOn) {
+            freeformBadge.text = "Active"
+            freeformBadge.setTextColor(0xFF10B981.toInt())
+            freeformSubtitle.text = "AOSP Floating multi-window enabled"
+        } else {
+            freeformBadge.text = "Enable"
+            freeformBadge.setTextColor(0xFFF59E0B.toInt())
+            freeformSubtitle.text = "Toggle 'Enable freeform windows' in Dev Options"
+            freeformBadge.setOnClickListener {
+                try {
+                    startActivity(Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS))
+                } catch (e: Exception) {
+                    Toast.makeText(this, "Open Developer Options -> Enable freeform windows", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+
+        val targetId = displayDetectionManager.activeTargetDisplayId
+        if (targetId != Display.DEFAULT_DISPLAY) {
+            displayBadge.text = "External"
+            displaySubtitle.text = "Target: Display #$targetId (Desktop Mode)"
+        } else {
+            displayBadge.text = "Primary"
+            displaySubtitle.text = "Running on built-in screen"
+        }
+
+        btnDone.setOnClickListener {
+            desktopPreferences.setHasSeenOnboarding(true)
+            dialog.dismiss()
+        }
+
+        dialog.show()
+    }
+
+    private fun promptOverlayPermissionOnce() {
+        if (!hasPromptedOverlay && !Settings.canDrawOverlays(this)) {
+            hasPromptedOverlay = true
+            showSetupOnboardingDialog(force = true)
         }
     }
 
